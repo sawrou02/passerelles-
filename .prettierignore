@@ -5,3 +5,8 @@ dist
 pnpm-lock.yaml
 package-lock.json
 routeTree.gen.ts
+
+# Email HTML is hand-tuned with inline styles for client compatibility —
+# prettier would reformat in ways that may break rendering in older email
+# clients (Outlook, etc.). Keep these files untouched by the formatter.
+supabase/email-templates/
