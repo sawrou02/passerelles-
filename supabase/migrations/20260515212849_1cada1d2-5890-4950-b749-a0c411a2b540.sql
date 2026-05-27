@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.is_blocked_by(uuid, uuid) FROM PUBLIC, anon, authenticated;

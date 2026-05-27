@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.notify_followers_new_book() FROM PUBLIC, anon, authenticated;

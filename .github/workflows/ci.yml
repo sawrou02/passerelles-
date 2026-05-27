@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Annule les runs en cours sur la même PR / branche quand un nouveau commit arrive
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      # Build runs first because @tanstack/router-plugin regenerates
+      # src/routeTree.gen.ts (gitignored). Without it, tsc fails on
+      # imports from "./routeTree.gen".
+      - name: Build (regenerates routeTree)
+        run: npm run build
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Format check (prettier)
+        run: npx prettier --check .
+
+      - name: Lint
+        run: npm run lint
