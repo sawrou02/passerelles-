@@ -37,7 +37,9 @@ export function InstallPWAButton({ className }: { className?: string }) {
         setInstalled(true);
         return;
       }
-    } catch {}
+    } catch {
+      // localStorage may be unavailable (private mode, disabled), ignore
+    }
 
     // iOS detection (no beforeinstallprompt support)
     const ua = window.navigator.userAgent;
@@ -71,7 +73,9 @@ export function InstallPWAButton({ className }: { className?: string }) {
       if (outcome === "dismissed") {
         try {
           localStorage.setItem(DISMISS_KEY, String(Date.now()));
-        } catch {}
+        } catch {
+          // localStorage may be unavailable, ignore
+        }
       }
       setDeferred(null);
     } else if (isIOS) {

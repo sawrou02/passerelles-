@@ -90,9 +90,15 @@ function UserProfilePage() {
             .eq("follower_id", user.id)
             .eq("following_id", userId)
             .maybeSingle()
-        : Promise.resolve({ data: null } as any),
-    ]).then(([p, b, r, fc, mf]: any[]) => {
-      setProfile((p.data as any) ?? { display_name: null });
+        : Promise.resolve({ data: null as { id: string } | null }),
+    ]).then(([p, b, r, fc, mf]) => {
+      type ProfileRow = {
+        display_name: string | null;
+        created_at?: string | null;
+        verified?: boolean | null;
+        phone_verified?: boolean | null;
+      };
+      setProfile((p.data as ProfileRow | null) ?? { display_name: null });
       setBooks((b.data as Book[]) ?? []);
       setReviews((r.data as Review[]) ?? []);
       setFollowersCount(fc.count ?? 0);

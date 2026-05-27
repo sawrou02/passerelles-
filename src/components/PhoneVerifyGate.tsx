@@ -32,14 +32,17 @@ export function PhoneVerifyGate() {
     }
     let cancelled = false;
     (async () => {
+      type PhoneVerifiedRow = { phone_verified: boolean | null } | null;
       const [{ data }, { data: ownPhone }] = await Promise.all([
         supabase.from("profiles").select("phone_verified").eq("id", user.id).maybeSingle(),
-        supabase.rpc("get_my_phone" as any),
+        // RPC name not present in generated types yet; cast required.
+        supabase.rpc("get_my_phone" as never),
       ]);
       if (cancelled) return;
-      const verified = (data as any)?.phone_verified === true;
+      const verified = (data as PhoneVerifiedRow)?.phone_verified === true;
       setNeeds(!verified);
-      const pendingPhone = (user.user_metadata as any)?.phone || (ownPhone as string | null) || "";
+      const meta = user.user_metadata as { phone?: string } | undefined;
+      const pendingPhone = meta?.phone || (ownPhone as string | null) || "";
       if (pendingPhone) setPhone(pendingPhone);
     })();
     return () => {
@@ -75,14 +78,15 @@ export function PhoneVerifyGate() {
       const { data, error } = await supabase.functions.invoke("send-phone-verification", {
         body: { phone: phone.trim() },
       });
-      if (error || (data as any)?.error) {
-        toast.error((data as any)?.error || error?.message || "Erreur d'envoi du code.");
+      const payload = data as { error?: string } | null;
+      if (error || payload?.error) {
+        toast.error(payload?.error || error?.message || "Erreur d'envoi du code.");
       } else {
         toast.success("Code envoyé par email.");
         setStep("code");
         setCooldown(60);
       }
-    } catch (e) {
+    } catch {
       toast.error("Erreur réseau. Réessayez.");
     } finally {
       setSending(false);
@@ -96,6 +100,8 @@ export function PhoneVerifyGate() {
       return;
     }
     setVerifying(true);
+    // RPC name not present in generated supabase types yet; cast required.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await supabase.rpc("verify_phone_code" as any, { _code: code });
     setVerifying(false);
     if (error) {

@@ -102,9 +102,29 @@ export function AdminUsersTab() {
   const [busy, setBusy] = useState(false);
 
   // Detail sheet
-  const [detailHistory, setDetailHistory] = useState<any[]>([]);
-  const [detailReports, setDetailReports] = useState<any[]>([]);
-  const [detailBooks, setDetailBooks] = useState<any[]>([]);
+  type DetailHistory = {
+    id: string;
+    created_at: string;
+    action: string;
+    reason: string | null;
+    duration_days: number | null;
+    note: string | null;
+  };
+  type DetailReport = {
+    id: string;
+    created_at: string;
+    raison: string | null;
+    statut: string | null;
+  };
+  type DetailBook = {
+    id: string;
+    title: string;
+    status: string | null;
+    created_at: string;
+  };
+  const [detailHistory, setDetailHistory] = useState<DetailHistory[]>([]);
+  const [detailReports, setDetailReports] = useState<DetailReport[]>([]);
+  const [detailBooks, setDetailBooks] = useState<DetailBook[]>([]);
 
   const loadAll = async () => {
     const [p, b, r, ur] = await Promise.all([
@@ -119,16 +139,16 @@ export function AdminUsersTab() {
     ]);
     setProfiles((p.data ?? []) as Profile[]);
     const bc: Record<string, number> = {};
-    (b.data ?? []).forEach((x: any) => {
+    (b.data ?? []).forEach((x: { seller_id: string }) => {
       bc[x.seller_id] = (bc[x.seller_id] ?? 0) + 1;
     });
     setBookCounts(bc);
     const rc: Record<string, number> = {};
-    (r.data ?? []).forEach((x: any) => {
+    (r.data ?? []).forEach((x: { reported_id: string | null }) => {
       if (x.reported_id) rc[x.reported_id] = (rc[x.reported_id] ?? 0) + 1;
     });
     setReportCounts(rc);
-    setAdminIds(new Set((ur.data ?? []).map((x: any) => x.user_id)));
+    setAdminIds(new Set((ur.data ?? []).map((x: { user_id: string }) => x.user_id)));
   };
   useEffect(() => {
     loadAll();
@@ -374,9 +394,9 @@ export function AdminUsersTab() {
         .eq("seller_id", p.id)
         .order("created_at", { ascending: false }),
     ]);
-    setDetailHistory(h.data ?? []);
-    setDetailReports(r.data ?? []);
-    setDetailBooks(b.data ?? []);
+    setDetailHistory((h.data ?? []) as DetailHistory[]);
+    setDetailReports((r.data ?? []) as DetailReport[]);
+    setDetailBooks((b.data ?? []) as DetailBook[]);
   };
 
   // ---- Render ----
@@ -420,7 +440,10 @@ export function AdminUsersTab() {
             <SelectItem value="verified">✅ Vérifiés</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+        <Select
+          value={sortBy}
+          onValueChange={(v) => setSortBy(v as "date" | "reports" | "activity")}
+        >
           <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue />
           </SelectTrigger>

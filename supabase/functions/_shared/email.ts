@@ -97,7 +97,8 @@ export async function shouldSend(opts: {
     .maybeSingle();
   if (!profile) return { ok: false, reason: "no_profile" };
   if (profile.unsubscribed_all) return { ok: false, reason: "unsubscribed_all" };
-  if (opts.preferenceCol && !(profile as any)[opts.preferenceCol]) {
+  const prefs = profile as Record<string, boolean | null>;
+  if (opts.preferenceCol && !prefs[opts.preferenceCol]) {
     return { ok: false, reason: "pref_off" };
   }
 

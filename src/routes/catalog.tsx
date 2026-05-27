@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -109,7 +109,7 @@ function Catalog() {
     };
   }, []);
 
-  const loadHistory = () => {
+  const loadHistory = useCallback(() => {
     if (!user) {
       setHistory([]);
       return;
@@ -121,11 +121,11 @@ function Catalog() {
       .order("created_at", { ascending: false })
       .limit(8)
       .then(({ data }) => setHistory((data as { id: string; query: string }[]) ?? []));
-  };
+  }, [user]);
 
   useEffect(() => {
     loadHistory();
-  }, [user]);
+  }, [loadHistory]);
 
   useEffect(() => {
     if (!user || !searchQuery.trim() || searchQuery.trim().length < 2) return;
@@ -135,7 +135,7 @@ function Catalog() {
       loadHistory();
     }, 1200);
     return () => clearTimeout(t);
-  }, [searchQuery, user]);
+  }, [searchQuery, user, loadHistory]);
 
   const clearHistory = async () => {
     if (!user) return;

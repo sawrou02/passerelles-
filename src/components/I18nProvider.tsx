@@ -23,7 +23,9 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       applyDirection(lng);
       try {
         localStorage.setItem(STORAGE_KEY, lng);
-      } catch {}
+      } catch {
+        // localStorage may be unavailable (private mode, quota exceeded); ignore.
+      }
     };
     i18n.on("languageChanged", handler);
     return () => {

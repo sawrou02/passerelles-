@@ -17,7 +17,8 @@ export function useUnreadChats() {
         .select("unread_by")
         .contains("participants", [user.id])
         .then(({ data }) => {
-          const n = (data ?? []).filter((c: any) => c.unread_by?.includes(user.id)).length;
+          const rows = (data ?? []) as Array<{ unread_by: string[] | null }>;
+          const n = rows.filter((c) => c.unread_by?.includes(user.id)).length;
           setCount(n);
         });
     };

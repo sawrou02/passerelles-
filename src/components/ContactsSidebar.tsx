@@ -192,10 +192,9 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
     // optimistic
     setChats((prev) => prev.map((c) => (c.id === chat.id ? { ...c, [column]: next } : c)));
     const payload: Record<string, string[]> = { [column]: next };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await supabase
       .from("chats")
-      .update(payload as any)
+      .update(payload as never)
       .eq("id", chat.id);
     if (error) {
       toast.error("Action impossible");

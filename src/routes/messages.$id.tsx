@@ -348,10 +348,9 @@ function ChatDetailPage() {
       : current.filter((id) => id !== user.id);
     setChat({ ...chat, [column]: next } as Chat);
     const payload: Record<string, string[]> = { [column]: next };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await supabase
       .from("chats")
-      .update(payload as any)
+      .update(payload as never)
       .eq("id", chatId);
     if (error) {
       toast.error("Action impossible");

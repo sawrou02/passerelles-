@@ -54,6 +54,55 @@ import { useAuth } from "@/hooks/useAuth";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
 import { AdminCharteTab } from "@/components/admin/AdminCharteTab";
 
+type AdminBook = {
+  id: string;
+  title: string;
+  description?: string | null;
+  category?: string;
+  condition?: string;
+  city?: string;
+  price?: number;
+  is_donation?: boolean;
+  image_url: string;
+  seller_id: string;
+  seller_name?: string;
+  created_at?: string;
+};
+type AdminReview = {
+  id: string;
+  reviewer_name: string;
+  rating: number;
+  comment: string | null;
+  created_at?: string;
+};
+type AdminProfile = {
+  id: string;
+  display_name: string | null;
+  verified?: boolean | null;
+  suspended_until?: string | null;
+  suspension_reason?: string | null;
+  banned_at?: string | null;
+  ban_reason?: string | null;
+};
+type AdminContactMsg = {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+};
+type AdminReport = {
+  id: string;
+  book_id: string;
+  raison: string;
+  description: string | null;
+  statut: string;
+  created_at: string;
+};
+type AdminReportBook = Pick<AdminBook, "id" | "title" | "image_url" | "seller_id">;
+
 const SUSPENSION_REASONS = [
   "Spam",
   "Arnaque",
@@ -75,17 +124,17 @@ function AdminPage() {
   const { user: adminUser } = useAuth();
   const { isAdmin, loading } = useIsAdmin();
   const [stats, setStats] = useState({ users: 0, books: 0, messages: 0, reviews: 0 });
-  const [books, setBooks] = useState<any[]>([]);
-  const [reviews, setReviews] = useState<any[]>([]);
-  const [profiles, setProfiles] = useState<any[]>([]);
-  const [contactMsgs, setContactMsgs] = useState<any[]>([]);
+  const [books, setBooks] = useState<AdminBook[]>([]);
+  const [reviews, setReviews] = useState<AdminReview[]>([]);
+  const [profiles, setProfiles] = useState<AdminProfile[]>([]);
+  const [contactMsgs, setContactMsgs] = useState<AdminContactMsg[]>([]);
   const [openMsgId, setOpenMsgId] = useState<string | null>(null);
-  const [reports, setReports] = useState<any[]>([]);
-  const [reportBooks, setReportBooks] = useState<Record<string, any>>({});
-  const [sanctionFor, setSanctionFor] = useState<any>(null);
+  const [reports, setReports] = useState<AdminReport[]>([]);
+  const [reportBooks, setReportBooks] = useState<Record<string, AdminReportBook>>({});
+  const [sanctionFor, setSanctionFor] = useState<AdminProfile | null>(null);
   const [sancDays, setSancDays] = useState<number>(7);
   const [sancReason, setSancReason] = useState<string>(SUSPENSION_REASONS[0]);
-  const [banFor, setBanFor] = useState<any>(null);
+  const [banFor, setBanFor] = useState<AdminProfile | null>(null);
   const [banReason, setBanReason] = useState<string>("");
   const [globalMsg, setGlobalMsg] = useState("");
   const [globalSending, setGlobalSending] = useState(false);
@@ -101,19 +150,20 @@ function AdminPage() {
       supabase.from("contact_messages").select("*").order("created_at", { ascending: false }),
       supabase.from("reports").select("*").order("created_at", { ascending: false }),
     ]).then(async ([p, b, m, r, c, rep]) => {
-      setProfiles(p.data ?? []);
-      setBooks(b.data ?? []);
-      setReviews(r.data ?? []);
-      setContactMsgs(c.data ?? []);
-      setReports(rep.data ?? []);
-      const ids = Array.from(new Set((rep.data ?? []).map((x: any) => x.book_id)));
+      setProfiles((p.data ?? []) as AdminProfile[]);
+      setBooks((b.data ?? []) as AdminBook[]);
+      setReviews((r.data ?? []) as AdminReview[]);
+      setContactMsgs((c.data ?? []) as AdminContactMsg[]);
+      const reportRows = (rep.data ?? []) as AdminReport[];
+      setReports(reportRows);
+      const ids = Array.from(new Set(reportRows.map((x) => x.book_id)));
       if (ids.length) {
         const { data: bs } = await supabase
           .from("books")
           .select("id, title, image_url, seller_id")
           .in("id", ids);
-        const map: Record<string, any> = {};
-        (bs ?? []).forEach((bk: any) => {
+        const map: Record<string, AdminReportBook> = {};
+        ((bs ?? []) as AdminReportBook[]).forEach((bk) => {
           map[bk.id] = bk;
         });
         setReportBooks(map);
@@ -223,7 +273,7 @@ function AdminPage() {
   };
 
   // Group reports by book_id
-  const reportsByBook = reports.reduce<Record<string, any[]>>((acc, r) => {
+  const reportsByBook = reports.reduce<Record<string, AdminReport[]>>((acc, r) => {
     (acc[r.book_id] ||= []).push(r);
     return acc;
   }, {});
@@ -233,7 +283,7 @@ function AdminPage() {
 
   // ---- Moderation helpers ----
 
-  const refreshProfile = (id: string, patch: any) =>
+  const refreshProfile = (id: string, patch: Partial<AdminProfile>) =>
     setProfiles((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
 
   const suspendUser = async () => {
@@ -267,7 +317,7 @@ function AdminPage() {
     setSanctionFor(null);
   };
 
-  const liftSanction = async (p: any) => {
+  const liftSanction = async (p: AdminProfile) => {
     const { error } = await supabase
       .from("profiles")
       .update({
@@ -322,7 +372,7 @@ function AdminPage() {
     setBanReason("");
   };
 
-  const toggleVerified = async (p: any) => {
+  const toggleVerified = async (p: AdminProfile) => {
     const next = !p.verified;
     const { error } = await supabase.from("profiles").update({ verified: next }).eq("id", p.id);
     if (error) return toast.error(error.message);

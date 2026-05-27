@@ -163,8 +163,9 @@ function BookDetailPage() {
       .eq("id", book.seller_id)
       .single()
       .then(({ data }) => {
-        setSellerJoined((data as any)?.created_at ?? null);
-        setSellerVerified(!!(data as any)?.verified);
+        const row = data as { created_at: string | null; verified: boolean | null } | null;
+        setSellerJoined(row?.created_at ?? null);
+        setSellerVerified(!!row?.verified);
       });
   }, [book?.seller_id]);
 

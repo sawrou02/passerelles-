@@ -42,8 +42,5 @@ jobs:
       - name: Format check (prettier)
         run: npx prettier --check .
 
-      # Lint reste informatif pour l'instant : 28 issues @typescript-eslint/no-explicit-any
-      # héritées de l'export Lovable doivent être nettoyées avant de rendre ce step bloquant.
-      - name: Lint (non-blocking)
+      - name: Lint
         run: npm run lint
-        continue-on-error: true

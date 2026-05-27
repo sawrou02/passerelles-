@@ -69,8 +69,9 @@ function Contact() {
     try {
       await submit({ data: parsed.data });
       setSubmitted(true);
-    } catch (err: any) {
-      toast.error(err?.message ?? t("contact.sendError"));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : null;
+      toast.error(message ?? t("contact.sendError"));
     } finally {
       setSubmitting(false);
     }

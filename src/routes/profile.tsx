@@ -73,6 +73,8 @@ function ProfilePage() {
         .select("id, display_name, avatar_url, phone_visible, city, phone_verified")
         .eq("id", user.id)
         .maybeSingle(),
+      // RPC name not present in generated supabase types yet; cast required.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       supabase.rpc("get_my_phone" as any),
     ]).then(([{ data }, { data: ownPhone }]) =>
       setProfile(
@@ -97,7 +99,8 @@ function ProfilePage() {
       .select("book_id")
       .eq("user_id", user.id)
       .then(async ({ data }) => {
-        const ids = (data ?? []).map((r: any) => r.book_id);
+        const rows = (data ?? []) as Array<{ book_id: string }>;
+        const ids = rows.map((r) => r.book_id);
         if (!ids.length) {
           setFavorites([]);
           return;
@@ -111,7 +114,8 @@ function ProfilePage() {
       .select("following_id")
       .eq("follower_id", user.id)
       .then(async ({ data }) => {
-        const ids = (data ?? []).map((r: any) => r.following_id);
+        const rows = (data ?? []) as Array<{ following_id: string }>;
+        const ids = rows.map((r) => r.following_id);
         if (!ids.length) {
           setFollowing([]);
           return;
@@ -120,7 +124,13 @@ function ProfilePage() {
           .from("profiles")
           .select("id, display_name, avatar_url")
           .in("id", ids);
-        setFollowing((profs as any[]) ?? []);
+        setFollowing(
+          (profs as Array<{
+            id: string;
+            display_name: string | null;
+            avatar_url: string | null;
+          }>) ?? [],
+        );
       });
   }, [user]);
 
