@@ -8,9 +8,27 @@
 --   - get_my_phone()         : le propriétaire récupère son propre numéro
 --   - get_user_phone(_uid)   : un autre user récupère le numéro si phone_visible
 --                              (ou si admin / si self)
+--
+-- ⚠️ Subtilité PostgreSQL : un REVOKE SELECT(col) n'écrase PAS un GRANT
+-- SELECT table-level (Supabase grant SELECT à anon/authenticated par défaut
+-- sur les tables publiques). Pour que le revoke colonne ait un effet, il
+-- faut révoquer le SELECT table-level puis re-grant sur toutes les colonnes
+-- SAUF phone.
 
--- 1) Bloquer l'accès direct à la colonne phone
-REVOKE SELECT (phone) ON public.profiles FROM anon, authenticated;
+-- 1) Drop le SELECT table-level (l'attribution de Supabase par défaut)
+REVOKE SELECT ON public.profiles FROM anon, authenticated;
+
+-- 2) Re-grant SELECT colonne par colonne, en excluant 'phone'.
+--    NB : à compléter à chaque ajout de colonne future sur public.profiles.
+GRANT SELECT (
+  id, display_name, title, birthdate, created_at, updated_at, avatar_url,
+  phone_visible, city, notify_email, notify_sms, notify_push, is_online,
+  last_seen, suspended_until, suspension_reason, banned_at, ban_reason,
+  verified, is_verified, is_suspended, is_banned, followers_count,
+  notify_reservations, notify_messages, notify_followers, notify_admin,
+  unsubscribed_all, warning_count, banned_by, charte_accepted,
+  charte_accepted_at, charte_version, phone_verified
+) ON public.profiles TO anon, authenticated;
 
 -- 2) RPC : récupère son propre numéro (utilisé par profile.tsx, PhoneVerifyGate)
 CREATE OR REPLACE FUNCTION public.get_my_phone()
