@@ -318,14 +318,18 @@ function ChatDetailPage() {
     }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `chat-attachments/${user.id}/${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("book-images")
-        .upload(path, file, { contentType: file.type });
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("book-images").getPublicUrl(path);
-      await sendRaw(`${IMAGE_PREFIX}${pub.publicUrl}`);
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("kind", "chat");
+      fd.append("role", "attachment");
+      const { data: out, error: invErr } = await supabase.functions.invoke("validate-book-image", {
+        body: fd,
+      });
+      const payload = out as { ok?: boolean; publicUrl?: string; error?: string } | null;
+      if (invErr || payload?.error || !payload?.publicUrl) {
+        throw new Error(payload?.error || invErr?.message || "Upload refusé");
+      }
+      await sendRaw(`${IMAGE_PREFIX}${payload.publicUrl}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Échec de l'envoi");
     } finally {

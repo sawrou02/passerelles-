@@ -284,19 +284,24 @@ function PublishPage() {
     try {
       for (let i = 0; i < photos.length; i++) {
         const ph = photos[i];
-        const ext = ph.file.name.split(".").pop()?.toLowerCase() || "jpg";
         const role = i === 0 ? "cover" : `interior-${i}`;
-        const path = `${user.id}/${Date.now()}-${role}.${ext}`;
-        const { error: upErr } = await supabase.storage
-          .from("book-images")
-          .upload(path, ph.file, { upsert: false, contentType: ph.file.type });
-        if (upErr) throw upErr;
-        const { data: pub } = supabase.storage.from("book-images").getPublicUrl(path);
-        if (i === 0) coverUrl = pub.publicUrl;
+        const fd = new FormData();
+        fd.append("file", ph.file);
+        fd.append("kind", "book");
+        fd.append("role", role);
+        const { data: out, error: invErr } = await supabase.functions.invoke(
+          "validate-book-image",
+          { body: fd },
+        );
+        const payload = out as { ok?: boolean; publicUrl?: string; error?: string } | null;
+        if (invErr || payload?.error || !payload?.publicUrl) {
+          throw new Error(payload?.error || invErr?.message || "Upload refusé");
+        }
+        if (i === 0) coverUrl = payload.publicUrl;
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setLoading(false);
-      toast.error(err?.message ?? "Erreur lors de l'envoi des photos");
+      toast.error(err instanceof Error ? err.message : "Erreur lors de l'envoi des photos");
       return;
     }
 

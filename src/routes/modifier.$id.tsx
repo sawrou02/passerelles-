@@ -104,18 +104,20 @@ function EditPage() {
 
     let finalImageUrl = imageUrl;
     if (imageFile) {
-      const ext = imageFile.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${user.id}/${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from("book-images")
-        .upload(path, imageFile, { upsert: false, contentType: imageFile.type });
-      if (upErr) {
+      const fd = new FormData();
+      fd.append("file", imageFile);
+      fd.append("kind", "book");
+      fd.append("role", "cover");
+      const { data: out, error: invErr } = await supabase.functions.invoke("validate-book-image", {
+        body: fd,
+      });
+      const payload = out as { ok?: boolean; publicUrl?: string; error?: string } | null;
+      if (invErr || payload?.error || !payload?.publicUrl) {
         setSaving(false);
-        toast.error(upErr.message);
+        toast.error(payload?.error || invErr?.message || "Upload refusé");
         return;
       }
-      const { data: pub } = supabase.storage.from("book-images").getPublicUrl(path);
-      finalImageUrl = pub.publicUrl;
+      finalImageUrl = payload.publicUrl;
     }
 
     const { error } = await supabase
