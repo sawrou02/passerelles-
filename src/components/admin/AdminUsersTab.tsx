@@ -333,7 +333,12 @@ export function AdminUsersTab() {
     if (error) return toast.error(error.message);
     toast.success("Message envoyé");
     close();
-    if (data) navigate({ to: "/messages/$id", params: { id: data as string } });
+    if (data)
+      navigate({
+        to: "/messages/$id",
+        params: { id: data as string },
+        search: { draft: undefined },
+      });
   };
 
   const doToggleVerified = async (p: Profile) => {

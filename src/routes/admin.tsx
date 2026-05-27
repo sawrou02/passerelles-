@@ -367,7 +367,7 @@ function AdminPage() {
       if (error) return toast.error(error.message);
       chatId = created.id;
     }
-    navigate({ to: "/messages/$id", params: { id: chatId } });
+    navigate({ to: "/messages/$id", params: { id: chatId }, search: { draft: undefined } });
   };
 
   const filteredProfiles = profiles.filter((p) => {

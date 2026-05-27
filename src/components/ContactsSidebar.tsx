@@ -359,6 +359,7 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
                 <Link
                   to="/messages/$id"
                   params={{ id: chat.id }}
+                  search={{ draft: undefined }}
                   className="flex items-center gap-3 px-3 py-3 pr-10"
                 >
                   {/* Book thumbnail */}
