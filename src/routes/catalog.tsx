@@ -64,6 +64,10 @@ export const Route = createFileRoute("/catalog")({
 });
 
 const PAGE_SIZE = 20;
+// Taille d'un batch fetch côté serveur. Au-delà de ce nombre de livres
+// déjà chargés, le bouton "Charger plus" déclenche un appel Supabase
+// supplémentaire au lieu de juste révéler des items déjà en mémoire.
+const SERVER_BATCH = 100;
 
 type PriceFilter = "all" | "free" | "paid";
 type DistanceFilter = "all" | "city" | "deliver";
@@ -92,6 +96,8 @@ function Catalog() {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [history, setHistory] = useState<{ id: string; query: string }[]>([]);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [hasMoreFromServer, setHasMoreFromServer] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -99,15 +105,32 @@ function Catalog() {
       .from("books")
       .select("*")
       .order("created_at", { ascending: false })
+      .range(0, SERVER_BATCH - 1)
       .then(({ data }) => {
         if (!active) return;
-        setBooks((data as Book[]) ?? []);
+        const rows = (data as Book[]) ?? [];
+        setBooks(rows);
+        setHasMoreFromServer(rows.length === SERVER_BATCH);
         setLoading(false);
       });
     return () => {
       active = false;
     };
   }, []);
+
+  const loadMoreFromServer = useCallback(async () => {
+    if (loadingMore || !hasMoreFromServer) return;
+    setLoadingMore(true);
+    const { data } = await supabase
+      .from("books")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .range(books.length, books.length + SERVER_BATCH - 1);
+    const rows = (data as Book[]) ?? [];
+    setBooks((prev) => [...prev, ...rows]);
+    setHasMoreFromServer(rows.length === SERVER_BATCH);
+    setLoadingMore(false);
+  }, [books.length, hasMoreFromServer, loadingMore]);
 
   const loadHistory = useCallback(() => {
     if (!user) {
@@ -194,18 +217,20 @@ function Catalog() {
 
   const visibleBooks = filteredBooks.slice(0, visibleCount);
 
-  // Infinite scroll
+  // Infinite scroll — déclenche fetch serveur si on a tout révélé localement
   useEffect(() => {
     const onScroll = () => {
-      if (visibleCount >= filteredBooks.length) return;
       const scrollBottom = window.innerHeight + window.scrollY;
-      if (scrollBottom >= document.body.offsetHeight - 600) {
+      if (scrollBottom < document.body.offsetHeight - 600) return;
+      if (visibleCount < filteredBooks.length) {
         setVisibleCount((c) => Math.min(c + PAGE_SIZE, filteredBooks.length));
+      } else if (hasMoreFromServer && !loadingMore) {
+        void loadMoreFromServer();
       }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [filteredBooks.length, visibleCount]);
+  }, [filteredBooks.length, visibleCount, hasMoreFromServer, loadingMore, loadMoreFromServer]);
 
   const toggleCondition = (c: string) =>
     setSelectedConditions((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
@@ -578,14 +603,25 @@ function Catalog() {
         </ul>
       )}
 
-      {!loading && visibleCount < filteredBooks.length && (
+      {!loading && (visibleCount < filteredBooks.length || hasMoreFromServer) && (
         <div className="flex justify-center pb-8">
           <Button
             variant="outline"
-            onClick={() => setVisibleCount((c) => Math.min(c + PAGE_SIZE, filteredBooks.length))}
+            disabled={loadingMore}
+            onClick={() => {
+              if (visibleCount < filteredBooks.length) {
+                setVisibleCount((c) => Math.min(c + PAGE_SIZE, filteredBooks.length));
+              } else {
+                void loadMoreFromServer();
+              }
+            }}
             className="rounded-xl font-bold"
           >
-            Charger plus ({filteredBooks.length - visibleCount} restants)
+            {loadingMore
+              ? "Chargement…"
+              : visibleCount < filteredBooks.length
+                ? `Charger plus (${filteredBooks.length - visibleCount} restants)`
+                : "Charger plus de livres"}
           </Button>
         </div>
       )}
