@@ -32,15 +32,14 @@ export function PhoneVerifyGate() {
     }
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("phone, phone_verified")
-        .eq("id", user.id)
-        .maybeSingle();
+      const [{ data }, { data: ownPhone }] = await Promise.all([
+        supabase.from("profiles").select("phone_verified").eq("id", user.id).maybeSingle(),
+        supabase.rpc("get_my_phone" as any),
+      ]);
       if (cancelled) return;
       const verified = (data as any)?.phone_verified === true;
       setNeeds(!verified);
-      const pendingPhone = (user.user_metadata as any)?.phone || (data as any)?.phone || "";
+      const pendingPhone = (user.user_metadata as any)?.phone || (ownPhone as string | null) || "";
       if (pendingPhone) setPhone(pendingPhone);
     })();
     return () => {

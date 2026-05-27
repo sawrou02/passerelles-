@@ -67,23 +67,30 @@ function ProfilePage() {
       .order("created_at", { ascending: false })
       .then(({ data }) => setMyBooks((data as Book[]) ?? []));
 
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) =>
-        setProfile(
-          (data as Profile) ?? {
-            id: user.id,
-            display_name: null,
-            avatar_url: null,
-            phone: null,
-            phone_visible: false,
-            city: null,
-          },
-        ),
-      );
+    Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url, phone_visible, city, phone_verified")
+        .eq("id", user.id)
+        .maybeSingle(),
+      supabase.rpc("get_my_phone" as any),
+    ]).then(([{ data }, { data: ownPhone }]) =>
+      setProfile(
+        data
+          ? ({
+              ...(data as Omit<Profile, "phone">),
+              phone: (ownPhone as string | null) ?? null,
+            } satisfies Profile)
+          : {
+              id: user.id,
+              display_name: null,
+              avatar_url: null,
+              phone: null,
+              phone_visible: false,
+              city: null,
+            },
+      ),
+    );
 
     supabase
       .from("favorites")
