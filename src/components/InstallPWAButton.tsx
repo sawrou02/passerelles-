@@ -95,8 +95,7 @@ export function InstallPWAButton({ className }: { className?: string }) {
       {showIOSHint && (
         <div className="absolute right-4 mt-2 max-w-xs rounded-lg border bg-card p-3 text-xs shadow-lg z-50">
           {t("common.iosInstallHint", {
-            defaultValue:
-              "Sur iPhone : appuyez sur Partager puis « Sur l'écran d'accueil ».",
+            defaultValue: "Sur iPhone : appuyez sur Partager puis « Sur l'écran d'accueil ».",
           })}
         </div>
       )}

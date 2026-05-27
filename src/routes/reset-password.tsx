@@ -18,7 +18,9 @@ function ResetPasswordPage() {
 
   useEffect(() => {
     // Supabase auto-handles the recovery token in the URL hash and creates a session
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
         setReady(true);
       }
@@ -65,23 +67,44 @@ function ResetPasswordPage() {
       {!ready ? (
         <div className="text-sm text-muted-foreground space-y-4 text-center max-w-sm">
           <p>Lien invalide ou expiré.</p>
-          <Link to="/forgot-password" className="inline-block underline">Demander un nouveau lien</Link>
+          <Link to="/forgot-password" className="inline-block underline">
+            Demander un nouveau lien
+          </Link>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="w-full space-y-6 max-w-sm">
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest">Nouveau mot de passe *</Label>
-            <Input id="password" name="password" type="password" required minLength={8}
-              className="h-12 bg-card border-muted rounded-none focus-visible:ring-foreground" />
+            <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest">
+              Nouveau mot de passe *
+            </Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              minLength={8}
+              className="h-12 bg-card border-muted rounded-none focus-visible:ring-foreground"
+            />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirm" className="text-xs font-bold uppercase tracking-widest">Confirmer *</Label>
-            <Input id="confirm" name="confirm" type="password" required minLength={8}
-              className="h-12 bg-card border-muted rounded-none focus-visible:ring-foreground" />
+            <Label htmlFor="confirm" className="text-xs font-bold uppercase tracking-widest">
+              Confirmer *
+            </Label>
+            <Input
+              id="confirm"
+              name="confirm"
+              type="password"
+              required
+              minLength={8}
+              className="h-12 bg-card border-muted rounded-none focus-visible:ring-foreground"
+            />
           </div>
 
-          <Button type="submit" disabled={loading}
-            className="w-full h-12 text-xs font-black rounded-none bg-foreground text-background uppercase tracking-widest hover:bg-foreground/90">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full h-12 text-xs font-black rounded-none bg-foreground text-background uppercase tracking-widest hover:bg-foreground/90"
+          >
             {loading ? <Loader2 className="animate-spin" /> : "METTRE À JOUR"}
           </Button>
         </form>

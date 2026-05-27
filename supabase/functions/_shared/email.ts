@@ -18,7 +18,10 @@ export const corsHeaders = {
 
 export const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
-export interface EmailButton { label: string; url: string; }
+export interface EmailButton {
+  label: string;
+  url: string;
+}
 
 export function renderEmail(opts: {
   title: string;
@@ -26,9 +29,13 @@ export function renderEmail(opts: {
   buttons?: EmailButton[];
   recipientEmail: string;
 }): string {
-  const buttons = (opts.buttons ?? []).map((b) => `
+  const buttons = (opts.buttons ?? [])
+    .map(
+      (b) => `
     <a href="${b.url}" style="display:inline-block;background:${TEAL};color:#fff;text-decoration:none;padding:12px 22px;border-radius:12px;font-weight:700;margin:6px 6px 0 0;font-family:Arial,sans-serif">${b.label}</a>
-  `).join("");
+  `,
+    )
+    .join("");
   const unsub = `${SITE}/unsubscribe?email=${encodeURIComponent(opts.recipientEmail)}`;
   return `<!doctype html><html><body style="margin:0;background:#f5f7f7;font-family:Arial,sans-serif;color:#1a2424">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f7f7;padding:24px 12px">
@@ -127,4 +134,6 @@ export async function logSent(userId: string, emailType: string, contextId?: str
   });
 }
 
-export function siteLink(path: string) { return `${SITE}${path}`; }
+export function siteLink(path: string) {
+  return `${SITE}${path}`;
+}

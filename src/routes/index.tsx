@@ -12,10 +12,22 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "MYKUTUB — Acheter et vendre des livres islamiques d'occasion en Europe" },
-      { name: "description", content: "Marketplace gratuite dédiée aux livres de science islamique d'occasion. Achetez, vendez ou donnez vos livres en Sadaqa Jariya. Communauté musulmane de confiance en Europe." },
-      { name: "keywords", content: "livres islamiques occasion, livres science islamique, marketplace musulmane, sadaqa jariya livres, vente livres coran europe" },
+      {
+        name: "description",
+        content:
+          "Marketplace gratuite dédiée aux livres de science islamique d'occasion. Achetez, vendez ou donnez vos livres en Sadaqa Jariya. Communauté musulmane de confiance en Europe.",
+      },
+      {
+        name: "keywords",
+        content:
+          "livres islamiques occasion, livres science islamique, marketplace musulmane, sadaqa jariya livres, vente livres coran europe",
+      },
       { property: "og:title", content: "MYKUTUB — Marketplace de livres islamiques d'occasion" },
-      { property: "og:description", content: "Achetez, vendez et donnez vos livres de science islamique. Une plateforme gratuite, sécurisée, au service de la communauté." },
+      {
+        property: "og:description",
+        content:
+          "Achetez, vendez et donnez vos livres de science islamique. Une plateforme gratuite, sécurisée, au service de la communauté.",
+      },
       { property: "og:url", content: "https://mykutub.lovable.app/" },
     ],
     links: [{ rel: "canonical", href: "https://mykutub.lovable.app/" }],
@@ -28,9 +40,14 @@ function Landing() {
   const [featured, setFeatured] = useState<Book[]>([]);
 
   useEffect(() => {
-    supabase.from("books").select("*").order("created_at", { ascending: false }).limit(8).then(({ data }) => {
-      setFeatured((data as Book[]) ?? []);
-    });
+    supabase
+      .from("books")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(8)
+      .then(({ data }) => {
+        setFeatured((data as Book[]) ?? []);
+      });
   }, []);
 
   return (
@@ -42,15 +59,26 @@ function Landing() {
             <h1 className="font-headline font-black leading-[1.05] tracking-tight text-[2rem] md:text-[3rem]">
               {t("home.h1a")} <span className="text-primary">{t("home.h1b")}</span>
             </h1>
-            <p className="text-sm md:text-base text-muted-foreground max-w-lg">
-              {t("home.intro")}
-            </p>
+            <p className="text-sm md:text-base text-muted-foreground max-w-lg">{t("home.intro")}</p>
             <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg" className="gap-2 h-12 rounded-2xl text-sm font-black px-6 uppercase tracking-wide shadow-xl shadow-primary/30 ring-2 ring-primary/20 hover:scale-105 transition-transform">
-                <Link to="/publish"><PlusCircle size={18} /> {t("home.publishBtn")}</Link>
+              <Button
+                asChild
+                size="lg"
+                className="gap-2 h-12 rounded-2xl text-sm font-black px-6 uppercase tracking-wide shadow-xl shadow-primary/30 ring-2 ring-primary/20 hover:scale-105 transition-transform"
+              >
+                <Link to="/publish">
+                  <PlusCircle size={18} /> {t("home.publishBtn")}
+                </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="gap-2 h-12 rounded-2xl text-sm font-bold px-6">
-                <Link to="/catalog">{t("common.explore")} <ArrowRight size={16} /></Link>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="gap-2 h-12 rounded-2xl text-sm font-bold px-6"
+              >
+                <Link to="/catalog">
+                  {t("common.explore")} <ArrowRight size={16} />
+                </Link>
               </Button>
             </div>
           </div>
@@ -76,16 +104,23 @@ function Landing() {
             <p className="text-muted-foreground mt-2">{t("home.latestSub")}</p>
           </div>
           <Button asChild variant="ghost" className="hidden sm:inline-flex gap-2">
-            <Link to="/catalog">{t("common.seeAll")} <ArrowRight size={16} /></Link>
+            <Link to="/catalog">
+              {t("common.seeAll")} <ArrowRight size={16} />
+            </Link>
           </Button>
         </div>
         {featured.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground bg-muted/30 rounded-3xl">
-            {t("home.empty")} <Link to="/publish" className="text-primary font-bold underline">{t("home.emptyCta")}</Link>
+            {t("home.empty")}{" "}
+            <Link to="/publish" className="text-primary font-bold underline">
+              {t("home.emptyCta")}
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {featured.map((b) => <BookCard key={b.id} book={b} />)}
+            {featured.map((b) => (
+              <BookCard key={b.id} book={b} />
+            ))}
           </div>
         )}
       </section>
@@ -98,7 +133,10 @@ function Landing() {
             { icon: Heart, title: t("home.valueB_title"), text: t("home.valueB_text") },
             { icon: ShieldCheck, title: t("home.valueC_title"), text: t("home.valueC_text") },
           ].map((v) => (
-            <div key={v.title} className="bg-card border rounded-3xl p-8 hover:shadow-lg transition-shadow">
+            <div
+              key={v.title}
+              className="bg-card border rounded-3xl p-8 hover:shadow-lg transition-shadow"
+            >
               <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4">
                 <v.icon size={22} />
               </div>
@@ -116,7 +154,12 @@ function Landing() {
             <h2 className="font-headline text-3xl md:text-4xl font-black">{t("home.ctaTitle")}</h2>
             <p className="opacity-90 text-lg">{t("home.ctaText")}</p>
           </div>
-          <Button asChild size="lg" variant="secondary" className="mt-6 md:mt-0 h-14 rounded-2xl font-bold px-8 text-base">
+          <Button
+            asChild
+            size="lg"
+            variant="secondary"
+            className="mt-6 md:mt-0 h-14 rounded-2xl font-bold px-8 text-base"
+          >
             <Link to="/signup">{t("home.ctaBtn")}</Link>
           </Button>
         </div>

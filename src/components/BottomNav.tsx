@@ -27,7 +27,7 @@ export function BottomNav() {
             to={item.to}
             className={cn(
               "flex flex-col items-center justify-center space-y-1 w-full h-full transition-colors relative",
-              isActive ? "text-primary" : "text-muted-foreground hover:text-primary/70"
+              isActive ? "text-primary" : "text-muted-foreground hover:text-primary/70",
             )}
           >
             <div className="relative">

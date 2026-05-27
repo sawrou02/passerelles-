@@ -1,6 +1,12 @@
 import { BadgeCheck } from "lucide-react";
 
-export function VerifiedPhoneBadge({ size = 14, className = "" }: { size?: number; className?: string }) {
+export function VerifiedPhoneBadge({
+  size = 14,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) {
   return (
     <span
       title="Numéro vérifié"

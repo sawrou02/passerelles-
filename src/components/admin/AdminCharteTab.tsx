@@ -34,18 +34,30 @@ export function AdminCharteTab() {
     setRows((ps ?? []) as Row[]);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
-  const acceptedCount = rows.filter((r) => r.charte_accepted && r.charte_version === currentVersion).length;
+  const acceptedCount = rows.filter(
+    (r) => r.charte_accepted && r.charte_version === currentVersion,
+  ).length;
 
   const updateVersion = async () => {
     const v = newVersion.trim();
     if (!v) return;
-    if (!confirm(`Publier la version ${v} de la charte ? Tous les membres devront ré-accepter au prochain login.`)) return;
+    if (
+      !confirm(
+        `Publier la version ${v} de la charte ? Tous les membres devront ré-accepter au prochain login.`,
+      )
+    )
+      return;
     setBusy(true);
     const { error } = await supabase.rpc("admin_set_charte_version", { _version: v });
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success(`Charte mise à jour en ${v}`);
     setNewVersion("");
     await load();
@@ -59,7 +71,8 @@ export function AdminCharteTab() {
           <h3 className="font-headline text-lg font-bold">Charte communautaire</h3>
         </div>
         <p className="text-sm">
-          Version courante : <Badge className="bg-primary text-primary-foreground">{currentVersion}</Badge>
+          Version courante :{" "}
+          <Badge className="bg-primary text-primary-foreground">{currentVersion}</Badge>
         </p>
         <p className="text-sm text-muted-foreground">
           {acceptedCount} / {rows.length} membres ont accepté la version courante.
@@ -76,7 +89,8 @@ export function AdminCharteTab() {
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Publier une nouvelle version oblige tous les membres à ré-accepter la charte à leur prochaine connexion.
+          Publier une nouvelle version oblige tous les membres à ré-accepter la charte à leur
+          prochaine connexion.
         </p>
       </Card>
 
@@ -96,7 +110,9 @@ export function AdminCharteTab() {
                   </p>
                 </div>
                 {ok ? (
-                  <Badge className="bg-primary/15 text-primary border border-primary/30">✅ À jour</Badge>
+                  <Badge className="bg-primary/15 text-primary border border-primary/30">
+                    ✅ À jour
+                  </Badge>
                 ) : r.charte_accepted ? (
                   <Badge variant="outline" className="border-amber-500 text-amber-700">
                     Version obsolète

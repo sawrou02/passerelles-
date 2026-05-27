@@ -32,9 +32,7 @@ export function NotificationBell() {
           <p className="font-semibold text-sm">Notifications</p>
         </div>
         {items.length === 0 ? (
-          <div className="py-8 text-center text-xs text-muted-foreground">
-            Aucune notification
-          </div>
+          <div className="py-8 text-center text-xs text-muted-foreground">Aucune notification</div>
         ) : (
           <ul className="divide-y">
             {items.map((n) => (

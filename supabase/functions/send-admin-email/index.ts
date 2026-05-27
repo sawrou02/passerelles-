@@ -1,9 +1,23 @@
 // send-admin-email: verified badge, new follower, global admin notification
-import { corsHeaders, renderEmail, sendResendEmail, siteLink, shouldSend, logSent } from "../_shared/email.ts";
+import {
+  corsHeaders,
+  renderEmail,
+  sendResendEmail,
+  siteLink,
+  shouldSend,
+  logSent,
+} from "../_shared/email.ts";
 
 interface Body {
   userId: string;
-  kind: "verified" | "follower" | "global" | "warning" | "unsuspended" | "unbanned" | "account_deleted";
+  kind:
+    | "verified"
+    | "follower"
+    | "global"
+    | "warning"
+    | "unsuspended"
+    | "unbanned"
+    | "account_deleted";
   recipientName?: string;
   followerName?: string;
   followerId?: string;
@@ -19,10 +33,20 @@ Deno.serve(async (req) => {
   try {
     const b: Body = await req.json();
     const prefCol = b.kind === "follower" ? "notify_followers" : "notify_admin";
-    const allow = await shouldSend({ userId: b.userId, emailType: `admin_${b.kind}`, preferenceCol: prefCol });
-    if (!allow.ok) return new Response(JSON.stringify({ skipped: allow.reason }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const allow = await shouldSend({
+      userId: b.userId,
+      emailType: `admin_${b.kind}`,
+      preferenceCol: prefCol,
+    });
+    if (!allow.ok)
+      return new Response(JSON.stringify({ skipped: allow.reason }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
 
-    let subject = "", title = "", body = "", buttons: { label: string; url: string }[] = [];
+    let subject = "",
+      title = "",
+      body = "",
+      buttons: { label: string; url: string }[] = [];
     const name = b.recipientName ?? "";
 
     if (b.kind === "verified") {
@@ -36,7 +60,9 @@ Deno.serve(async (req) => {
       subject = `➕ ${b.followerName ?? "Quelqu'un"} vous suit sur MyKutub`;
       title = subject;
       body = `<p>Salam <strong>${name}</strong>,</p><p><strong>${b.followerName ?? "Un utilisateur"}</strong> a commencé à vous suivre.</p>`;
-      buttons = [{ label: "Voir le profil", url: siteLink(b.followerId ? `/user/${b.followerId}` : "/") }];
+      buttons = [
+        { label: "Voir le profil", url: siteLink(b.followerId ? `/user/${b.followerId}` : "/") },
+      ];
     } else if (b.kind === "warning") {
       subject = "⚠️ Avertissement de la modération MyKutub";
       title = subject;
@@ -72,9 +98,14 @@ Deno.serve(async (req) => {
     const html = renderEmail({ title, bodyHtml: body, buttons, recipientEmail: allow.email! });
     await sendResendEmail(allow.email!, subject, html);
     await logSent(b.userId, `admin_${b.kind}`);
-    return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: String(e) }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

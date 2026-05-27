@@ -28,7 +28,9 @@ export function CharteGate() {
       const accepted = profile?.charte_accepted === true && profile?.charte_version === current;
       setNeedsAccept(!accepted);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   const handleAccept = async () => {
@@ -42,12 +44,5 @@ export function CharteGate() {
   };
 
   if (!user || !needsAccept) return null;
-  return (
-    <CharteModal
-      open
-      mandatory
-      onOpenChange={() => {}}
-      onAccept={handleAccept}
-    />
-  );
+  return <CharteModal open mandatory onOpenChange={() => {}} onAccept={handleAccept} />;
 }

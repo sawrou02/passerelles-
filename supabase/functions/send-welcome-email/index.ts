@@ -5,14 +5,28 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
     const { userId } = await req.json();
-    if (!userId) return new Response(JSON.stringify({ error: "userId required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!userId)
+      return new Response(JSON.stringify({ error: "userId required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
 
     const { data: u } = await admin.auth.admin.getUserById(userId);
     const email = u?.user?.email;
-    if (!email) return new Response(JSON.stringify({ skipped: "no_email" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!email)
+      return new Response(JSON.stringify({ skipped: "no_email" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
 
-    const { data: profile } = await admin.from("profiles").select("display_name,unsubscribed_all").eq("id", userId).maybeSingle();
-    if (profile?.unsubscribed_all) return new Response(JSON.stringify({ skipped: "unsubscribed" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("display_name,unsubscribed_all")
+      .eq("id", userId)
+      .maybeSingle();
+    if (profile?.unsubscribed_all)
+      return new Response(JSON.stringify({ skipped: "unsubscribed" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
 
     const name = profile?.display_name ?? "";
     const html = renderEmail({
@@ -28,9 +42,14 @@ Deno.serve(async (req) => {
       recipientEmail: email,
     });
     await sendResendEmail(email, "🌟 Bienvenue sur MyKutub !", html);
-    return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: String(e) }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

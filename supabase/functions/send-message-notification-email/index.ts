@@ -1,8 +1,15 @@
 // send-message-notification-email: 1 email / chat / 30 min
-import { corsHeaders, renderEmail, sendResendEmail, siteLink, shouldSend, logSent } from "../_shared/email.ts";
+import {
+  corsHeaders,
+  renderEmail,
+  sendResendEmail,
+  siteLink,
+  shouldSend,
+  logSent,
+} from "../_shared/email.ts";
 
 interface Body {
-  userId: string;        // recipient
+  userId: string; // recipient
   recipientName?: string;
   senderName: string;
   preview: string;
@@ -20,7 +27,10 @@ Deno.serve(async (req) => {
       contextId: b.chatId,
       perContextWindowMinutes: 30,
     });
-    if (!allow.ok) return new Response(JSON.stringify({ skipped: allow.reason }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!allow.ok)
+      return new Response(JSON.stringify({ skipped: allow.reason }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
 
     const snippet = (b.preview ?? "").slice(0, 50) + ((b.preview ?? "").length > 50 ? "…" : "");
     const subject = `💬 Nouveau message de ${b.senderName}`;
@@ -34,9 +44,14 @@ Deno.serve(async (req) => {
     });
     await sendResendEmail(allow.email!, subject, html);
     await logSent(b.userId, "message", b.chatId);
-    return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: String(e) }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

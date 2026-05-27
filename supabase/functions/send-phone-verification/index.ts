@@ -7,31 +7,50 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get("Authorization") ?? "";
     const token = authHeader.replace(/^Bearer\s+/i, "");
     if (!token) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
     const { data: userData, error: userErr } = await admin.auth.getUser(token);
     if (userErr || !userData?.user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
     const userId = userData.user.id;
     const email = userData.user.email;
     if (!email) {
-      return new Response(JSON.stringify({ error: "No email" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "No email" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const body = await req.json().catch(() => ({}));
     const phoneRaw = (body?.phone ?? "").toString().trim();
     if (!/^[+0-9 ().-]{6,20}$/.test(phoneRaw)) {
-      return new Response(JSON.stringify({ error: "Numéro invalide" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Numéro invalide" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Throttle: 60s between sends per user
-    const { data: existing } = await admin.from("phone_verifications").select("last_sent_at").eq("user_id", userId).maybeSingle();
+    const { data: existing } = await admin
+      .from("phone_verifications")
+      .select("last_sent_at")
+      .eq("user_id", userId)
+      .maybeSingle();
     if (existing?.last_sent_at) {
       const elapsed = Date.now() - new Date(existing.last_sent_at).getTime();
       if (elapsed < 60_000) {
         const wait = Math.ceil((60_000 - elapsed) / 1000);
-        return new Response(JSON.stringify({ error: `Patientez ${wait}s avant de redemander un code.` }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        return new Response(
+          JSON.stringify({ error: `Patientez ${wait}s avant de redemander un code.` }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
       }
     }
 
@@ -47,7 +66,11 @@ Deno.serve(async (req) => {
     });
     if (upErr) throw upErr;
 
-    const { data: profile } = await admin.from("profiles").select("display_name").eq("id", userId).maybeSingle();
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("display_name")
+      .eq("id", userId)
+      .maybeSingle();
     const name = profile?.display_name ?? "";
     const html = renderEmail({
       title: "🔐 Votre code de vérification MyKutub",
@@ -58,9 +81,14 @@ Deno.serve(async (req) => {
       recipientEmail: email,
     });
     await sendResendEmail(email, "🔐 Votre code de vérification MyKutub", html);
-    return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: String(e) }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

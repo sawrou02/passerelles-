@@ -17,24 +17,56 @@ export function SiteFooter() {
         <div>
           <h4 className="font-bold text-sm mb-3">{t("nav.platform")}</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/catalog" className="hover:text-primary">{t("nav.catalog")}</Link></li>
-            <li><Link to="/publish" className="hover:text-primary">{t("nav.publishBook")}</Link></li>
-            <li><Link to="/how-it-works" className="hover:text-primary">{t("nav.howItWorks")}</Link></li>
+            <li>
+              <Link to="/catalog" className="hover:text-primary">
+                {t("nav.catalog")}
+              </Link>
+            </li>
+            <li>
+              <Link to="/publish" className="hover:text-primary">
+                {t("nav.publishBook")}
+              </Link>
+            </li>
+            <li>
+              <Link to="/how-it-works" className="hover:text-primary">
+                {t("nav.howItWorks")}
+              </Link>
+            </li>
           </ul>
         </div>
         <div>
           <h4 className="font-bold text-sm mb-3">{t("nav.company")}</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/about" className="hover:text-primary">{t("nav.about")}</Link></li>
-            <li><Link to="/faq" className="hover:text-primary">{t("nav.faq")}</Link></li>
-            <li><Link to="/contact" className="hover:text-primary">{t("nav.contact")}</Link></li>
+            <li>
+              <Link to="/about" className="hover:text-primary">
+                {t("nav.about")}
+              </Link>
+            </li>
+            <li>
+              <Link to="/faq" className="hover:text-primary">
+                {t("nav.faq")}
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" className="hover:text-primary">
+                {t("nav.contact")}
+              </Link>
+            </li>
           </ul>
         </div>
         <div>
           <h4 className="font-bold text-sm mb-3">{t("nav.accountSection")}</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/login" className="hover:text-primary">{t("nav.login")}</Link></li>
-            <li><Link to="/signup" className="hover:text-primary">{t("nav.createAccount")}</Link></li>
+            <li>
+              <Link to="/login" className="hover:text-primary">
+                {t("nav.login")}
+              </Link>
+            </li>
+            <li>
+              <Link to="/signup" className="hover:text-primary">
+                {t("nav.createAccount")}
+              </Link>
+            </li>
           </ul>
         </div>
       </div>

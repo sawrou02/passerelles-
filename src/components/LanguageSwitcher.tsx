@@ -1,6 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Languages } from "lucide-react";
 import { applyDirection } from "@/lib/i18n";
 
@@ -14,7 +19,7 @@ const LANGS = [
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
-  const current = LANGS.find(l => l.code === i18n.language) || LANGS[0];
+  const current = LANGS.find((l) => l.code === i18n.language) || LANGS[0];
 
   const change = (code: string) => {
     i18n.changeLanguage(code);
@@ -30,8 +35,12 @@ export function LanguageSwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {LANGS.map(l => (
-          <DropdownMenuItem key={l.code} onClick={() => change(l.code)} className="gap-2 cursor-pointer">
+        {LANGS.map((l) => (
+          <DropdownMenuItem
+            key={l.code}
+            onClick={() => change(l.code)}
+            className="gap-2 cursor-pointer"
+          >
             <span>{l.flag}</span> <span>{l.label}</span>
           </DropdownMenuItem>
         ))}

@@ -31,8 +31,8 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-headline: 'Space Grotesk', sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-headline: "Space Grotesk", sans-serif;
 }
 
 :root {
@@ -81,18 +81,35 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
+  * {
+    border-color: var(--color-border);
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
-  .font-headline { font-family: var(--font-headline); }
+  .font-headline {
+    font-family: var(--font-headline);
+  }
 }
 
 /* Thin discreet scrollbar for chat panes */
-.thin-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-.thin-scroll::-webkit-scrollbar-track { background: transparent; }
-.thin-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
-.thin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
-.thin-scroll { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.15) transparent; }
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+.thin-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}

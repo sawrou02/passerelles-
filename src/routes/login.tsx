@@ -38,7 +38,11 @@ function LoginPage() {
     setLoading(false);
     if (error) {
       const msg = error.message.toLowerCase();
-      if (msg.includes("email not confirmed") || msg.includes("not confirmed") || msg.includes("confirm")) {
+      if (
+        msg.includes("email not confirmed") ||
+        msg.includes("not confirmed") ||
+        msg.includes("confirm")
+      ) {
         toast.error("Veuillez vérifier votre adresse email avant de vous connecter.");
       } else if (msg.includes("invalid")) {
         toast.error("Email ou mot de passe incorrect.");
@@ -55,12 +59,17 @@ function LoginPage() {
     <div className="bg-background min-h-screen px-4 py-8 flex flex-col items-center">
       <div className="w-full max-w-md">
         <div className="flex items-center justify-between mb-8">
-          <button onClick={() => history.back()} className="p-2 -ml-2 text-muted-foreground hover:text-foreground">
+          <button
+            onClick={() => history.back()}
+            className="p-2 -ml-2 text-muted-foreground hover:text-foreground"
+          >
             <ChevronLeft size={22} />
           </button>
           <Link to="/" className="flex items-center gap-2">
             <BookOpen className="text-primary" size={22} />
-            <span className="font-headline text-xl font-bold text-primary tracking-tight">MYKUTUB</span>
+            <span className="font-headline text-xl font-bold text-primary tracking-tight">
+              MYKUTUB
+            </span>
           </Link>
           <span className="w-8" />
         </div>
@@ -82,7 +91,9 @@ function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium">Adresse email</Label>
+              <Label htmlFor="email" className="text-sm font-medium">
+                Adresse email
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -94,7 +105,9 @@ function LoginPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-sm font-medium">Mot de passe</Label>
+              <Label htmlFor="password" className="text-sm font-medium">
+                Mot de passe
+              </Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -115,7 +128,10 @@ function LoginPage() {
             </div>
 
             <div className="text-right">
-              <Link to="/forgot-password" className="text-xs font-medium text-primary hover:underline">
+              <Link
+                to="/forgot-password"
+                className="text-xs font-medium text-primary hover:underline"
+              >
                 Mot de passe oublié ?
               </Link>
             </div>

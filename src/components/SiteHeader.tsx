@@ -30,7 +30,9 @@ export function SiteHeader() {
         <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 md:px-8">
           <Link to="/" className="flex items-center gap-2">
             <BookOpen className="text-primary" size={22} />
-            <span className="font-headline text-xl font-bold text-primary tracking-tight">MYKUTUB</span>
+            <span className="font-headline text-xl font-bold text-primary tracking-tight">
+              MYKUTUB
+            </span>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">
@@ -42,7 +44,9 @@ export function SiteHeader() {
                   to={l.to}
                   className={cn(
                     "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                    isActive ? "text-primary bg-primary/5" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    isActive
+                      ? "text-primary bg-primary/5"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted",
                   )}
                 >
                   {l.label}
@@ -54,12 +58,22 @@ export function SiteHeader() {
           <div className="flex items-center gap-2">
             {user ? (
               <div className="hidden sm:flex items-center gap-2">
-                <Button asChild size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
-                  <Link to="/publish"><PlusCircle size={16} /> <span className="hidden xl:inline">{t("home.publishBtn")}</span><span className="xl:hidden">{t("nav.publishBook")}</span></Link>
+                <Button
+                  asChild
+                  size="sm"
+                  className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-bold"
+                >
+                  <Link to="/publish">
+                    <PlusCircle size={16} />{" "}
+                    <span className="hidden xl:inline">{t("home.publishBtn")}</span>
+                    <span className="xl:hidden">{t("nav.publishBook")}</span>
+                  </Link>
                 </Button>
                 {isAdmin && (
                   <Button asChild variant="ghost" size="icon" title="Admin">
-                    <Link to="/admin"><ShieldCheck size={18} className="text-primary" /></Link>
+                    <Link to="/admin">
+                      <ShieldCheck size={18} className="text-primary" />
+                    </Link>
                   </Button>
                 )}
                 <NotificationBell />
@@ -74,18 +88,37 @@ export function SiteHeader() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="gap-2">
-                  <Link to="/profile"><User size={16} /> <span className="hidden xl:inline">{t("nav.account")}</span></Link>
+                  <Link to="/profile">
+                    <User size={16} /> <span className="hidden xl:inline">{t("nav.account")}</span>
+                  </Link>
                 </Button>
               </div>
             ) : (
               <>
-                <Button asChild size="sm" className="hidden sm:inline-flex gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
-                  <Link to="/publish"><PlusCircle size={16} /> <span className="hidden lg:inline">{t("home.publishBtn")}</span><span className="lg:hidden">{t("nav.publishBook")}</span></Link>
+                <Button
+                  asChild
+                  size="sm"
+                  className="hidden sm:inline-flex gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 font-bold"
+                >
+                  <Link to="/publish">
+                    <PlusCircle size={16} />{" "}
+                    <span className="hidden lg:inline">{t("home.publishBtn")}</span>
+                    <span className="lg:hidden">{t("nav.publishBook")}</span>
+                  </Link>
                 </Button>
-                <Button asChild variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/10 hover:text-primary font-bold">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="border-primary text-primary hover:bg-primary/10 hover:text-primary font-bold"
+                >
                   <Link to="/login">{t("nav.login")}</Link>
                 </Button>
-                <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold">
+                <Button
+                  asChild
+                  size="sm"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold"
+                >
                   <Link to="/signup">{t("nav.signup")}</Link>
                 </Button>
               </>
@@ -112,15 +145,42 @@ export function SiteHeader() {
                   <div className="border-t my-4" />
                   {user ? (
                     <>
-                      <Link to="/publish" className="px-4 py-3 rounded-lg font-medium hover:bg-muted">{t("nav.publishBook")}</Link>
-                      <Link to="/messages" className="px-4 py-3 rounded-lg font-medium hover:bg-muted">{t("nav.messages")}</Link>
-                      <Link to="/profile" className="px-4 py-3 rounded-lg font-medium hover:bg-muted">{t("nav.account")}</Link>
-                      <Link to="/settings" className="px-4 py-3 rounded-lg font-medium hover:bg-muted">Paramètres</Link>
+                      <Link
+                        to="/publish"
+                        className="px-4 py-3 rounded-lg font-medium hover:bg-muted"
+                      >
+                        {t("nav.publishBook")}
+                      </Link>
+                      <Link
+                        to="/messages"
+                        className="px-4 py-3 rounded-lg font-medium hover:bg-muted"
+                      >
+                        {t("nav.messages")}
+                      </Link>
+                      <Link
+                        to="/profile"
+                        className="px-4 py-3 rounded-lg font-medium hover:bg-muted"
+                      >
+                        {t("nav.account")}
+                      </Link>
+                      <Link
+                        to="/settings"
+                        className="px-4 py-3 rounded-lg font-medium hover:bg-muted"
+                      >
+                        Paramètres
+                      </Link>
                     </>
                   ) : (
                     <>
-                      <Link to="/login" className="px-4 py-3 rounded-lg font-medium hover:bg-muted">{t("nav.login")}</Link>
-                      <Link to="/signup" className="px-4 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-center">{t("nav.signup")}</Link>
+                      <Link to="/login" className="px-4 py-3 rounded-lg font-medium hover:bg-muted">
+                        {t("nav.login")}
+                      </Link>
+                      <Link
+                        to="/signup"
+                        className="px-4 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-center"
+                      >
+                        {t("nav.signup")}
+                      </Link>
                     </>
                   )}
                   <div className="border-t my-4" />

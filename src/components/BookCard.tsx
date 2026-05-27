@@ -7,14 +7,29 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import type { Book } from "@/lib/mykutub";
 
-const COLORS = ["bg-red-500", "bg-orange-500", "bg-amber-500", "bg-emerald-500", "bg-sky-500", "bg-indigo-500", "bg-fuchsia-500", "bg-rose-500"];
+const COLORS = [
+  "bg-red-500",
+  "bg-orange-500",
+  "bg-amber-500",
+  "bg-emerald-500",
+  "bg-sky-500",
+  "bg-indigo-500",
+  "bg-fuchsia-500",
+  "bg-rose-500",
+];
 function colorFor(id: string) {
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
   return COLORS[h % COLORS.length];
 }
 
-export function BookCard({ book, onUnfavorite }: { book: Book; onUnfavorite?: (id: string) => void }) {
+export function BookCard({
+  book,
+  onUnfavorite,
+}: {
+  book: Book;
+  onUnfavorite?: (id: string) => void;
+}) {
   const { user } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -31,11 +46,16 @@ export function BookCard({ book, onUnfavorite }: { book: Book; onUnfavorite?: (i
         const avg = data.reduce((s, r) => s + (r.rating ?? 0), 0) / data.length;
         setRating({ avg, count: data.length });
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [book.seller_id]);
 
   useEffect(() => {
-    if (!user) { setIsLiked(false); return; }
+    if (!user) {
+      setIsLiked(false);
+      return;
+    }
     let cancelled = false;
     supabase
       .from("favorites")
@@ -43,22 +63,37 @@ export function BookCard({ book, onUnfavorite }: { book: Book; onUnfavorite?: (i
       .eq("user_id", user.id)
       .eq("book_id", book.id)
       .maybeSingle()
-      .then(({ data }) => { if (!cancelled) setIsLiked(!!data); });
-    return () => { cancelled = true; };
+      .then(({ data }) => {
+        if (!cancelled) setIsLiked(!!data);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [user, book.id]);
 
   const toggleFav = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user) { toast.error("Connectez-vous pour ajouter aux favoris."); return; }
+    if (!user) {
+      toast.error("Connectez-vous pour ajouter aux favoris.");
+      return;
+    }
     if (busy) return;
     setBusy(true);
     if (isLiked) {
-      const { error } = await supabase.from("favorites").delete().eq("user_id", user.id).eq("book_id", book.id);
-      if (!error) { setIsLiked(false); onUnfavorite?.(book.id); }
-      else toast.error("Erreur");
+      const { error } = await supabase
+        .from("favorites")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("book_id", book.id);
+      if (!error) {
+        setIsLiked(false);
+        onUnfavorite?.(book.id);
+      } else toast.error("Erreur");
     } else {
-      const { error } = await supabase.from("favorites").insert({ user_id: user.id, book_id: book.id });
+      const { error } = await supabase
+        .from("favorites")
+        .insert({ user_id: user.id, book_id: book.id });
       if (!error) setIsLiked(true);
       else toast.error("Erreur");
     }
@@ -70,7 +105,12 @@ export function BookCard({ book, onUnfavorite }: { book: Book; onUnfavorite?: (i
   return (
     <Link to="/book/$id" params={{ id: book.id }} className="block group">
       <div className="flex items-center gap-1.5 mb-1.5 min-w-0">
-        <div className={cn("w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0", colorFor(book.seller_id))}>
+        <div
+          className={cn(
+            "w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0",
+            colorFor(book.seller_id),
+          )}
+        >
           {initial}
         </div>
         <span className="text-[11px] font-medium text-foreground truncate">{book.seller_name}</span>
@@ -99,7 +139,11 @@ export function BookCard({ book, onUnfavorite }: { book: Book; onUnfavorite?: (i
           className="absolute top-1.5 right-1.5 p-1.5 rounded-full bg-white/90 text-foreground hover:text-destructive shadow-sm disabled:opacity-50"
           aria-label="Favori"
         >
-          <Heart size={12} fill={isLiked ? "currentColor" : "transparent"} className={cn(isLiked && "text-destructive")} />
+          <Heart
+            size={12}
+            fill={isLiked ? "currentColor" : "transparent"}
+            className={cn(isLiked && "text-destructive")}
+          />
         </button>
         {book.is_donation && (
           <span className="absolute top-1.5 left-1.5 bg-secondary text-secondary-foreground text-[8px] font-bold uppercase px-1.5 py-0.5 rounded">
@@ -108,12 +152,16 @@ export function BookCard({ book, onUnfavorite }: { book: Book; onUnfavorite?: (i
         )}
         {book.status === "reserved" && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="bg-amber-500 text-white text-[10px] font-bold uppercase px-2 py-1 rounded shadow">Réservé</span>
+            <span className="bg-amber-500 text-white text-[10px] font-bold uppercase px-2 py-1 rounded shadow">
+              Réservé
+            </span>
           </div>
         )}
         {book.status === "given" && (
           <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
-            <span className="bg-red-600 text-white text-[10px] font-bold uppercase px-2 py-1 rounded shadow">Déjà donné</span>
+            <span className="bg-red-600 text-white text-[10px] font-bold uppercase px-2 py-1 rounded shadow">
+              Déjà donné
+            </span>
           </div>
         )}
       </div>

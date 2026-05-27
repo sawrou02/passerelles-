@@ -7,9 +7,16 @@ export const Route = createFileRoute("/how-it-works")({
   head: () => ({
     meta: [
       { title: "Comment ça marche — Acheter et vendre des livres islamiques | MYKUTUB" },
-      { name: "description", content: "En 3 étapes simples : créez votre compte, publiez votre annonce, échangez avec la communauté. 100% gratuit, 100% islamique." },
+      {
+        name: "description",
+        content:
+          "En 3 étapes simples : créez votre compte, publiez votre annonce, échangez avec la communauté. 100% gratuit, 100% islamique.",
+      },
       { property: "og:title", content: "Comment ça marche | MYKUTUB" },
-      { property: "og:description", content: "Acheter, vendre ou donner un livre islamique en 3 étapes simples." },
+      {
+        property: "og:description",
+        content: "Acheter, vendre ou donner un livre islamique en 3 étapes simples.",
+      },
       { property: "og:url", content: "https://mykutub.lovable.app/how-it-works" },
     ],
     links: [{ rel: "canonical", href: "https://mykutub.lovable.app/how-it-works" }],

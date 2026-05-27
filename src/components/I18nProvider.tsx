@@ -21,10 +21,14 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
     const handler = (lng: string) => {
       applyDirection(lng);
-      try { localStorage.setItem(STORAGE_KEY, lng); } catch {}
+      try {
+        localStorage.setItem(STORAGE_KEY, lng);
+      } catch {}
     };
     i18n.on("languageChanged", handler);
-    return () => { i18n.off("languageChanged", handler); };
+    return () => {
+      i18n.off("languageChanged", handler);
+    };
   }, []);
 
   // Render children immediately to avoid blocking; SSR uses fr by default and client matches.

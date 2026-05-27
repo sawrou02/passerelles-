@@ -1,5 +1,11 @@
 // send-suspension-email: suspension or definitive ban (no preference filter — moderation)
-import { corsHeaders, renderEmail, sendResendEmail, sendResendEmail as _, admin } from "../_shared/email.ts";
+import {
+  corsHeaders,
+  renderEmail,
+  sendResendEmail,
+  sendResendEmail as _,
+  admin,
+} from "../_shared/email.ts";
 
 interface Body {
   userId: string;
@@ -15,10 +21,15 @@ Deno.serve(async (req) => {
     const b: Body = await req.json();
     const { data: u } = await admin.auth.admin.getUserById(b.userId);
     const email = u?.user?.email;
-    if (!email) return new Response(JSON.stringify({ skipped: "no_email" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!email)
+      return new Response(JSON.stringify({ skipped: "no_email" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
 
     const name = b.recipientName ?? "";
-    let subject = "", title = "", body = "";
+    let subject = "",
+      title = "",
+      body = "";
     if (b.kind === "suspended") {
       subject = "⚠️ Compte suspendu";
       title = subject;
@@ -37,9 +48,14 @@ Deno.serve(async (req) => {
 
     const html = renderEmail({ title, bodyHtml: body, recipientEmail: email });
     await sendResendEmail(email, subject, html);
-    return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: String(e) }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

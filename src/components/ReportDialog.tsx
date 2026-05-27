@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,7 +25,15 @@ const REASONS = [
   { value: "autre", label: "Autre" },
 ];
 
-export function ReportDialog({ bookId, open, onOpenChange }: { bookId: string; open: boolean; onOpenChange: (o: boolean) => void }) {
+export function ReportDialog({
+  bookId,
+  open,
+  onOpenChange,
+}: {
+  bookId: string;
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+}) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [raison, setRaison] = useState("contenu_inapproprie");
@@ -57,27 +72,40 @@ export function ReportDialog({ bookId, open, onOpenChange }: { bookId: string; o
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Signaler cette annonce</DialogTitle>
-          <DialogDescription>Aidez-nous à garder MyKutub sûr. Votre signalement reste confidentiel.</DialogDescription>
+          <DialogDescription>
+            Aidez-nous à garder MyKutub sûr. Votre signalement reste confidentiel.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Raison</Label>
             <RadioGroup value={raison} onValueChange={setRaison}>
-              {REASONS.map(r => (
+              {REASONS.map((r) => (
                 <div key={r.value} className="flex items-center gap-2">
                   <RadioGroupItem value={r.value} id={r.value} />
-                  <Label htmlFor={r.value} className="font-normal cursor-pointer">{r.label}</Label>
+                  <Label htmlFor={r.value} className="font-normal cursor-pointer">
+                    {r.label}
+                  </Label>
                 </div>
               ))}
             </RadioGroup>
           </div>
           <div className="space-y-2">
             <Label htmlFor="desc">Détails (optionnel)</Label>
-            <Textarea id="desc" value={description} onChange={e => setDescription(e.target.value)} maxLength={500} rows={3} placeholder="Précisez le problème..." />
+            <Textarea
+              id="desc"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={500}
+              rows={3}
+              placeholder="Précisez le problème..."
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Annuler
+          </Button>
           <Button onClick={handleSubmit} disabled={submitting}>
             {submitting && <Loader2 size={14} className="animate-spin mr-1" />}
             Envoyer

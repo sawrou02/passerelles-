@@ -5,12 +5,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Camera, Check, ChevronLeft, ChevronsUpDown, Eye, Heart, Loader2, Plus, Truck, X } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Camera,
+  Check,
+  ChevronLeft,
+  ChevronsUpDown,
+  Eye,
+  Heart,
+  Loader2,
+  Plus,
+  Truck,
+  X,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -37,7 +61,11 @@ export const Route = createFileRoute("/publish")({
   head: () => ({
     meta: [
       { title: "Publier une annonce — Vendre ou donner un livre islamique | MYKUTUB" },
-      { name: "description", content: "Publiez votre annonce gratuitement en 2 minutes. Vendez ou donnez vos livres islamiques d'occasion à des milliers de membres de la communauté musulmane." },
+      {
+        name: "description",
+        content:
+          "Publiez votre annonce gratuitement en 2 minutes. Vendez ou donnez vos livres islamiques d'occasion à des milliers de membres de la communauté musulmane.",
+      },
       { property: "og:title", content: "Publier une annonce | MYKUTUB" },
       { property: "og:description", content: "Publiez gratuitement en 2 minutes." },
       { property: "og:url", content: "https://mykutub.lovable.app/publish" },
@@ -73,12 +101,18 @@ function PreviewCard({
         <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 bg-primary">
           {initial}
         </div>
-        <span className="text-[11px] font-medium text-foreground truncate">{sellerName || "Vous"}</span>
+        <span className="text-[11px] font-medium text-foreground truncate">
+          {sellerName || "Vous"}
+        </span>
       </div>
 
       <div className="relative aspect-[3/4] overflow-hidden bg-muted rounded-lg">
         {imagePreview ? (
-          <img src={imagePreview} alt={title || "aperçu"} className="absolute inset-0 w-full h-full object-cover" />
+          <img
+            src={imagePreview}
+            alt={title || "aperçu"}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
             <Camera size={32} />
@@ -99,7 +133,12 @@ function PreviewCard({
         )}
       </div>
       <div className="pt-1.5 space-y-0.5">
-        <h3 className={cn("font-semibold text-[13px] leading-tight line-clamp-2", !title && "text-muted-foreground italic")}>
+        <h3
+          className={cn(
+            "font-semibold text-[13px] leading-tight line-clamp-2",
+            !title && "text-muted-foreground italic",
+          )}
+        >
           {title || "Titre du livre"}
         </h3>
         <p className="font-bold text-sm text-foreground">
@@ -291,12 +330,22 @@ function PublishPage() {
   const categoriesNoTout = CATEGORIES.filter((c) => c !== "Tout");
   const sellerName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Vous";
   const coverPreview = photos[0]?.preview ?? null;
-  const previewProps = { imagePreview: coverPreview, title, price, city, isDonation, canDeliver, sellerName };
+  const previewProps = {
+    imagePreview: coverPreview,
+    title,
+    price,
+    city,
+    isDonation,
+    canDeliver,
+    sellerName,
+  };
 
   return (
     <div className="bg-background min-h-screen pb-24">
       <header className="sticky top-0 z-40 bg-card border-b px-4 py-3 flex items-center gap-3">
-        <button onClick={() => history.back()} className="p-2"><ChevronLeft size={24} /></button>
+        <button onClick={() => history.back()} className="p-2">
+          <ChevronLeft size={24} />
+        </button>
         <h1 className="font-headline text-xl font-bold">{t("publish.title")}</h1>
       </header>
 
@@ -305,7 +354,10 @@ function PublishPage() {
           {/* ---------------- Photos (min 3, 3:4 portrait) ---------------- */}
           <div>
             <Label className="text-xs font-bold uppercase tracking-widest mb-2 block">
-              Photos * <span className="text-muted-foreground normal-case font-medium">— minimum {MIN_PHOTOS}, format portrait 3:4</span>
+              Photos *{" "}
+              <span className="text-muted-foreground normal-case font-medium">
+                — minimum {MIN_PHOTOS}, format portrait 3:4
+              </span>
             </Label>
             <input
               ref={fileInputRef}
@@ -331,7 +383,11 @@ function PublishPage() {
                     >
                       {photo ? (
                         <>
-                          <img src={photo.preview} alt={label} className="absolute inset-0 w-full h-full object-cover" />
+                          <img
+                            src={photo.preview}
+                            alt={label}
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
                           <button
                             type="button"
                             onClick={() => removePhoto(slot)}
@@ -359,7 +415,12 @@ function PublishPage() {
                         </button>
                       )}
                     </div>
-                    <p className={cn("text-[10px] text-center font-medium", missing ? "text-destructive" : "text-muted-foreground")}>
+                    <p
+                      className={cn(
+                        "text-[10px] text-center font-medium",
+                        missing ? "text-destructive" : "text-muted-foreground",
+                      )}
+                    >
                       {slot === 0 ? "Couverture" : "Intérieur"}
                     </p>
                   </div>
@@ -369,8 +430,15 @@ function PublishPage() {
             {photos.length > 3 && (
               <div className="mt-3 grid grid-cols-6 gap-2">
                 {photos.slice(3).map((ph, i) => (
-                  <div key={i + 3} className="relative aspect-[3/4] rounded-lg overflow-hidden border">
-                    <img src={ph.preview} alt={`extra-${i}`} className="absolute inset-0 w-full h-full object-cover" />
+                  <div
+                    key={i + 3}
+                    className="relative aspect-[3/4] rounded-lg overflow-hidden border"
+                  >
+                    <img
+                      src={ph.preview}
+                      alt={`extra-${i}`}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
                     <button
                       type="button"
                       onClick={() => removePhoto(i + 3)}
@@ -401,32 +469,60 @@ function PublishPage() {
           {/* ---------------- Titre (optionnel) ---------------- */}
           <div className="space-y-1.5">
             <Label htmlFor="title" className="text-xs font-bold uppercase tracking-widest">
-              {t("publish.bookTitle")} <span className="text-muted-foreground font-normal normal-case">(optionnel)</span>
+              {t("publish.bookTitle")}{" "}
+              <span className="text-muted-foreground font-normal normal-case">(optionnel)</span>
             </Label>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="h-11" placeholder="Ex : Riyad As-Salihin" />
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="h-11"
+              placeholder="Ex : Riyad As-Salihin"
+            />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="description" className="text-xs font-bold uppercase tracking-widest">{t("publish.description")}</Label>
-            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
+            <Label htmlFor="description" className="text-xs font-bold uppercase tracking-widest">
+              {t("publish.description")}
+            </Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-widest">{t("publish.category")} *</Label>
+              <Label className="text-xs font-bold uppercase tracking-widest">
+                {t("publish.category")} *
+              </Label>
               <Select value={category} onValueChange={setCategory} required>
-                <SelectTrigger className="h-11"><SelectValue placeholder={t("publish.choose")} /></SelectTrigger>
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder={t("publish.choose")} />
+                </SelectTrigger>
                 <SelectContent>
-                  {categoriesNoTout.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {categoriesNoTout.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-bold uppercase tracking-widest">État *</Label>
               <Select value={condition} onValueChange={setCondition} required>
-                <SelectTrigger className="h-11"><SelectValue placeholder={t("publish.choose")} /></SelectTrigger>
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder={t("publish.choose")} />
+                </SelectTrigger>
                 <SelectContent>
-                  {CONDITIONS.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {CONDITIONS.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -444,18 +540,32 @@ function PublishPage() {
                   setPostalCode("");
                 }}
               >
-                <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-11">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {COUNTRIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-widest">{t("publish.language")} *</Label>
+              <Label className="text-xs font-bold uppercase tracking-widest">
+                {t("publish.language")} *
+              </Label>
               <Select value={language} onValueChange={setLanguage} required>
-                <SelectTrigger className="h-11"><SelectValue placeholder={t("publish.choose")} /></SelectTrigger>
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder={t("publish.choose")} />
+                </SelectTrigger>
                 <SelectContent>
-                  {LANG_OPTIONS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                  {LANG_OPTIONS.map((l) => (
+                    <SelectItem key={l} value={l}>
+                      {l}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -479,7 +589,10 @@ function PublishPage() {
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="p-0 w-[--radix-popover-trigger-width] max-w-[420px]" align="start">
+                <PopoverContent
+                  className="p-0 w-[--radix-popover-trigger-width] max-w-[420px]"
+                  align="start"
+                >
                   <Command>
                     <CommandInput placeholder="Tapez le nom de la ville…" />
                     <CommandList>
@@ -487,10 +600,17 @@ function PublishPage() {
                       <CommandGroup>
                         {cityOptions.slice(0, 200).map((c) => (
                           <CommandItem key={c} value={c} onSelect={() => handleCitySelect(c)}>
-                            <Check className={cn("mr-2 h-4 w-4", city === c ? "opacity-100" : "opacity-0")} />
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                city === c ? "opacity-100" : "opacity-0",
+                              )}
+                            />
                             {c}
                             {CITY_POSTAL_CODES[c] && (
-                              <span className="ml-auto text-xs text-muted-foreground">{CITY_POSTAL_CODES[c]}</span>
+                              <span className="ml-auto text-xs text-muted-foreground">
+                                {CITY_POSTAL_CODES[c]}
+                              </span>
                             )}
                           </CommandItem>
                         ))}
@@ -501,7 +621,9 @@ function PublishPage() {
               </Popover>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="postal" className="text-xs font-bold uppercase tracking-widest">Code postal *</Label>
+              <Label htmlFor="postal" className="text-xs font-bold uppercase tracking-widest">
+                Code postal *
+              </Label>
               <Input
                 id="postal"
                 value={postalCode}
@@ -516,7 +638,9 @@ function PublishPage() {
 
           {/* ---------------- Téléphone ---------------- */}
           <div className="space-y-1.5">
-            <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-widest">Téléphone *</Label>
+            <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-widest">
+              Téléphone *
+            </Label>
             <Input
               id="phone"
               type="tel"
@@ -525,26 +649,52 @@ function PublishPage() {
               placeholder={country === "Belgique" ? "+32 4 ..." : "06 12 34 56 78"}
               className="h-11"
             />
-            <p className="text-[11px] text-muted-foreground">Visible uniquement par les acheteurs intéressés.</p>
+            <p className="text-[11px] text-muted-foreground">
+              Visible uniquement par les acheteurs intéressés.
+            </p>
           </div>
 
           <div className="flex items-center gap-3 p-4 bg-secondary/10 rounded-2xl">
-            <Checkbox id="donation" checked={isDonation} onCheckedChange={(v) => setIsDonation(!!v)} />
-            <Label htmlFor="donation" className="font-bold text-sm cursor-pointer">{t("publish.donation")}</Label>
+            <Checkbox
+              id="donation"
+              checked={isDonation}
+              onCheckedChange={(v) => setIsDonation(!!v)}
+            />
+            <Label htmlFor="donation" className="font-bold text-sm cursor-pointer">
+              {t("publish.donation")}
+            </Label>
           </div>
 
           <div className="flex items-start gap-3 p-4 bg-primary/5 rounded-2xl">
-            <Checkbox id="delivery" checked={canDeliver} onCheckedChange={(v) => setCanDeliver(!!v)} className="mt-0.5" />
+            <Checkbox
+              id="delivery"
+              checked={canDeliver}
+              onCheckedChange={(v) => setCanDeliver(!!v)}
+              className="mt-0.5"
+            />
             <div className="flex-1">
-              <Label htmlFor="delivery" className="font-bold text-sm cursor-pointer">{t("publish.canDeliver")}</Label>
+              <Label htmlFor="delivery" className="font-bold text-sm cursor-pointer">
+                {t("publish.canDeliver")}
+              </Label>
               <p className="text-xs text-muted-foreground mt-0.5">{t("publish.canDeliverHint")}</p>
             </div>
           </div>
 
           {!isDonation && (
             <div className="space-y-1.5">
-              <Label htmlFor="price" className="text-xs font-bold uppercase tracking-widest">{t("publish.price")} *</Label>
-              <Input id="price" type="number" min={0} step={0.5} value={price} onChange={(e) => setPrice(e.target.value)} required className="h-11" />
+              <Label htmlFor="price" className="text-xs font-bold uppercase tracking-widest">
+                {t("publish.price")} *
+              </Label>
+              <Input
+                id="price"
+                type="number"
+                min={0}
+                step={0.5}
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                required
+                className="h-11"
+              />
             </div>
           )}
 
@@ -552,7 +702,11 @@ function PublishPage() {
           <div className="lg:hidden">
             <Sheet>
               <SheetTrigger asChild>
-                <Button type="button" variant="outline" className="w-full h-12 rounded-2xl gap-2 font-bold">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full h-12 rounded-2xl gap-2 font-bold"
+                >
                   <Eye size={16} /> {t("publish.seePreview")}
                 </Button>
               </SheetTrigger>
@@ -569,8 +723,13 @@ function PublishPage() {
 
           {/* ---------------- Checklist dynamique ---------------- */}
           <div className="p-4 bg-primary/5 border border-primary/20 rounded-2xl space-y-2.5">
-            <p className="text-xs font-bold uppercase tracking-widest text-primary">Checklist de validation</p>
-            <ChecklistItem ok={checklist.photos} label={`Au moins ${MIN_PHOTOS} photos (couverture + 2 intérieures)`} />
+            <p className="text-xs font-bold uppercase tracking-widest text-primary">
+              Checklist de validation
+            </p>
+            <ChecklistItem
+              ok={checklist.photos}
+              label={`Au moins ${MIN_PHOTOS} photos (couverture + 2 intérieures)`}
+            />
             <ChecklistItem ok={checklist.condition} label="État du livre sélectionné" />
             <ChecklistItem ok={checklist.city} label="Ville renseignée" />
             <ChecklistItem ok={checklist.postal} label="Code postal valide" />
@@ -578,7 +737,11 @@ function PublishPage() {
             <ChecklistItem ok={checklist.phone} label="Numéro de téléphone valide" />
           </div>
 
-          <Button type="submit" disabled={loading || !checklistOk} className="w-full h-14 rounded-2xl text-base font-bold">
+          <Button
+            type="submit"
+            disabled={loading || !checklistOk}
+            className="w-full h-14 rounded-2xl text-base font-bold"
+          >
             {loading ? <Loader2 className="animate-spin" /> : t("publish.submit")}
           </Button>
         </form>

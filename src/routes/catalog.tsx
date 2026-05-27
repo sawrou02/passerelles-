@@ -3,8 +3,16 @@ import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Search, SlidersHorizontal, MapPin, X, Check, History, Trash2,
-  LayoutGrid, List as ListIcon, Truck,
+  Search,
+  SlidersHorizontal,
+  MapPin,
+  X,
+  Check,
+  History,
+  Trash2,
+  LayoutGrid,
+  List as ListIcon,
+  Truck,
 } from "lucide-react";
 import { BookCard } from "@/components/BookCard";
 import { Badge } from "@/components/ui/badge";
@@ -14,10 +22,23 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter, SheetClose,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+  SheetClose,
 } from "@/components/ui/sheet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
@@ -25,9 +46,16 @@ export const Route = createFileRoute("/catalog")({
   head: () => ({
     meta: [
       { title: "Catalogue — Livres islamiques d'occasion | MYKUTUB" },
-      { name: "description", content: "Parcourez des centaines de livres de science islamique d'occasion : Tafsir, Hadith, Fiqh, Aqida, Sira. Prix accessibles, vendeurs vérifiés, livraison en Europe." },
+      {
+        name: "description",
+        content:
+          "Parcourez des centaines de livres de science islamique d'occasion : Tafsir, Hadith, Fiqh, Aqida, Sira. Prix accessibles, vendeurs vérifiés, livraison en Europe.",
+      },
       { property: "og:title", content: "Catalogue — Livres islamiques d'occasion | MYKUTUB" },
-      { property: "og:description", content: "Tafsir, Hadith, Fiqh, Aqida, Sira et plus. Vendeurs vérifiés, prix accessibles." },
+      {
+        property: "og:description",
+        content: "Tafsir, Hadith, Fiqh, Aqida, Sira et plus. Vendeurs vérifiés, prix accessibles.",
+      },
       { property: "og:url", content: "https://mykutub.lovable.app/catalog" },
     ],
     links: [{ rel: "canonical", href: "https://mykutub.lovable.app/catalog" }],
@@ -67,22 +95,37 @@ function Catalog() {
 
   useEffect(() => {
     let active = true;
-    supabase.from("books").select("*").order("created_at", { ascending: false }).then(({ data }) => {
-      if (!active) return;
-      setBooks((data as Book[]) ?? []);
-      setLoading(false);
-    });
-    return () => { active = false; };
+    supabase
+      .from("books")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (!active) return;
+        setBooks((data as Book[]) ?? []);
+        setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const loadHistory = () => {
-    if (!user) { setHistory([]); return; }
-    supabase.from("search_history").select("id, query")
-      .eq("user_id", user.id).order("created_at", { ascending: false }).limit(8)
+    if (!user) {
+      setHistory([]);
+      return;
+    }
+    supabase
+      .from("search_history")
+      .select("id, query")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(8)
       .then(({ data }) => setHistory((data as { id: string; query: string }[]) ?? []));
   };
 
-  useEffect(() => { loadHistory(); }, [user]);
+  useEffect(() => {
+    loadHistory();
+  }, [user]);
 
   useEffect(() => {
     if (!user || !searchQuery.trim() || searchQuery.trim().length < 2) return;
@@ -101,27 +144,53 @@ function Catalog() {
   };
 
   const filteredBooks = useMemo(() => {
-    return books.filter(b => {
-      const okCat = selectedCategory === "Tout" || b.category === selectedCategory;
-      const q = searchQuery.toLowerCase();
-      const okSearch = b.title.toLowerCase().includes(q) || (b.description?.toLowerCase() || "").includes(q);
-      const okCity = !selectedCity || b.city === selectedCity;
-      const okCond = selectedConditions.length === 0 || selectedConditions.includes(b.condition);
-      const okLang = selectedLanguages.length === 0 || selectedLanguages.includes(b.language ?? "Français");
-      const okPrice = priceFilter === "all" || (priceFilter === "free" ? b.is_donation : !b.is_donation);
-      const okDist =
-        distanceFilter === "all" ||
-        (distanceFilter === "city" ? !!selectedCity && b.city === selectedCity : !!b.can_deliver);
-      return okCat && okSearch && okCity && okCond && okLang && okPrice && okDist;
-    }).sort((a, b) => {
-      if (sortBy === "price-asc") return a.price - b.price;
-      if (sortBy === "price-desc") return b.price - a.price;
-      return 0;
-    });
-  }, [books, selectedCategory, searchQuery, selectedCity, selectedConditions, selectedLanguages, priceFilter, distanceFilter, sortBy]);
+    return books
+      .filter((b) => {
+        const okCat = selectedCategory === "Tout" || b.category === selectedCategory;
+        const q = searchQuery.toLowerCase();
+        const okSearch =
+          b.title.toLowerCase().includes(q) || (b.description?.toLowerCase() || "").includes(q);
+        const okCity = !selectedCity || b.city === selectedCity;
+        const okCond = selectedConditions.length === 0 || selectedConditions.includes(b.condition);
+        const okLang =
+          selectedLanguages.length === 0 || selectedLanguages.includes(b.language ?? "Français");
+        const okPrice =
+          priceFilter === "all" || (priceFilter === "free" ? b.is_donation : !b.is_donation);
+        const okDist =
+          distanceFilter === "all" ||
+          (distanceFilter === "city" ? !!selectedCity && b.city === selectedCity : !!b.can_deliver);
+        return okCat && okSearch && okCity && okCond && okLang && okPrice && okDist;
+      })
+      .sort((a, b) => {
+        if (sortBy === "price-asc") return a.price - b.price;
+        if (sortBy === "price-desc") return b.price - a.price;
+        return 0;
+      });
+  }, [
+    books,
+    selectedCategory,
+    searchQuery,
+    selectedCity,
+    selectedConditions,
+    selectedLanguages,
+    priceFilter,
+    distanceFilter,
+    sortBy,
+  ]);
 
   // Reset pagination on filter change
-  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [selectedCategory, searchQuery, selectedCity, selectedConditions, selectedLanguages, priceFilter, distanceFilter, sortBy]);
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [
+    selectedCategory,
+    searchQuery,
+    selectedCity,
+    selectedConditions,
+    selectedLanguages,
+    priceFilter,
+    distanceFilter,
+    sortBy,
+  ]);
 
   const visibleBooks = filteredBooks.slice(0, visibleCount);
 
@@ -131,7 +200,7 @@ function Catalog() {
       if (visibleCount >= filteredBooks.length) return;
       const scrollBottom = window.innerHeight + window.scrollY;
       if (scrollBottom >= document.body.offsetHeight - 600) {
-        setVisibleCount(c => Math.min(c + PAGE_SIZE, filteredBooks.length));
+        setVisibleCount((c) => Math.min(c + PAGE_SIZE, filteredBooks.length));
       }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -139,12 +208,13 @@ function Catalog() {
   }, [filteredBooks.length, visibleCount]);
 
   const toggleCondition = (c: string) =>
-    setSelectedConditions(p => p.includes(c) ? p.filter(x => x !== c) : [...p, c]);
+    setSelectedConditions((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
   const toggleLanguage = (l: string) =>
-    setSelectedLanguages(p => p.includes(l) ? p.filter(x => x !== l) : [...p, l]);
+    setSelectedLanguages((p) => (p.includes(l) ? p.filter((x) => x !== l) : [...p, l]));
 
   const activeFiltersCount =
-    selectedConditions.length + selectedLanguages.length +
+    selectedConditions.length +
+    selectedLanguages.length +
     (priceFilter !== "all" ? 1 : 0) +
     (distanceFilter !== "all" ? 1 : 0) +
     (sortBy !== "recent" ? 1 : 0);
@@ -167,7 +237,10 @@ function Catalog() {
       <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-md py-4 -mx-4 px-4 md:-mx-8 md:px-8 space-y-4 border-b mb-6">
         <div className="flex flex-wrap gap-2 items-center">
           <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              size={18}
+            />
             <Input
               placeholder={t("catalog.placeholder")}
               value={searchQuery}
@@ -177,7 +250,10 @@ function Catalog() {
               className="pl-10 h-12 bg-muted/50 border-none rounded-xl"
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              >
                 <X size={16} />
               </button>
             )}
@@ -187,15 +263,25 @@ function Catalog() {
                   <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     <History size={12} /> {t("common.recentSearches")}
                   </div>
-                  <button onMouseDown={(e) => { e.preventDefault(); clearHistory(); }} className="text-xs text-destructive hover:underline flex items-center gap-1">
+                  <button
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      clearHistory();
+                    }}
+                    className="text-xs text-destructive hover:underline flex items-center gap-1"
+                  >
                     <Trash2 size={12} /> {t("common.clearHistory")}
                   </button>
                 </div>
                 <ul className="max-h-64 overflow-y-auto">
-                  {history.map(h => (
+                  {history.map((h) => (
                     <li key={h.id}>
                       <button
-                        onMouseDown={(e) => { e.preventDefault(); setSearchQuery(h.query); setSearchFocused(false); }}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setSearchQuery(h.query);
+                          setSearchFocused(false);
+                        }}
                         className="w-full text-left px-3 py-2 text-sm hover:bg-muted flex items-center gap-2"
                       >
                         <Search size={14} className="text-muted-foreground" />
@@ -210,7 +296,13 @@ function Catalog() {
 
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className={cn("rounded-xl h-12 gap-2 px-4", selectedCity && "bg-primary/5 border-primary text-primary")}>
+              <Button
+                variant="outline"
+                className={cn(
+                  "rounded-xl h-12 gap-2 px-4",
+                  selectedCity && "bg-primary/5 border-primary text-primary",
+                )}
+              >
                 <MapPin size={16} />
                 <span className="text-xs font-bold">{selectedCity || t("common.allFrance")}</span>
               </Button>
@@ -221,13 +313,27 @@ function Catalog() {
                 <CommandList>
                   <CommandEmpty>{t("catalog.cityEmpty")}</CommandEmpty>
                   <CommandGroup>
-                    <CommandItem onSelect={() => setSelectedCity(null)} className="cursor-pointer font-bold">
-                      <Check className={cn("mr-2 h-4 w-4", !selectedCity ? "opacity-100" : "opacity-0")} />
+                    <CommandItem
+                      onSelect={() => setSelectedCity(null)}
+                      className="cursor-pointer font-bold"
+                    >
+                      <Check
+                        className={cn("mr-2 h-4 w-4", !selectedCity ? "opacity-100" : "opacity-0")}
+                      />
                       {t("common.allFrance")}
                     </CommandItem>
-                    {ALL_CITIES.map(city => (
-                      <CommandItem key={city} onSelect={() => setSelectedCity(city)} className="cursor-pointer">
-                        <Check className={cn("mr-2 h-4 w-4", selectedCity === city ? "opacity-100" : "opacity-0")} />
+                    {ALL_CITIES.map((city) => (
+                      <CommandItem
+                        key={city}
+                        onSelect={() => setSelectedCity(city)}
+                        className="cursor-pointer"
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            selectedCity === city ? "opacity-100" : "opacity-0",
+                          )}
+                        />
                         {city}
                       </CommandItem>
                     ))}
@@ -239,7 +345,14 @@ function Catalog() {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="secondary" size="icon" className={cn("h-12 w-12 rounded-xl relative", activeFiltersCount > 0 && "bg-primary text-primary-foreground")}>
+              <Button
+                variant="secondary"
+                size="icon"
+                className={cn(
+                  "h-12 w-12 rounded-xl relative",
+                  activeFiltersCount > 0 && "bg-primary text-primary-foreground",
+                )}
+              >
                 <SlidersHorizontal size={20} />
                 {activeFiltersCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-amber-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
@@ -250,18 +363,29 @@ function Catalog() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[320px] flex flex-col">
               <SheetHeader className="text-left border-b pb-4">
-                <SheetTitle className="text-2xl font-black text-primary">{t("common.filters")}</SheetTitle>
+                <SheetTitle className="text-2xl font-black text-primary">
+                  {t("common.filters")}
+                </SheetTitle>
               </SheetHeader>
               <div className="flex-1 overflow-y-auto py-6 space-y-8">
                 <div className="space-y-4">
-                  <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Prix</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">
+                    Prix
+                  </h3>
                   <div className="grid grid-cols-3 gap-2">
-                    {([
-                      { id: "all", label: "Tout" },
-                      { id: "free", label: "Gratuit" },
-                      { id: "paid", label: "Payant" },
-                    ] as const).map(o => (
-                      <Button key={o.id} variant={priceFilter === o.id ? "default" : "outline"} onClick={() => setPriceFilter(o.id)} className="h-10 rounded-xl font-bold text-xs">
+                    {(
+                      [
+                        { id: "all", label: "Tout" },
+                        { id: "free", label: "Gratuit" },
+                        { id: "paid", label: "Payant" },
+                      ] as const
+                    ).map((o) => (
+                      <Button
+                        key={o.id}
+                        variant={priceFilter === o.id ? "default" : "outline"}
+                        onClick={() => setPriceFilter(o.id)}
+                        className="h-10 rounded-xl font-bold text-xs"
+                      >
                         {o.label}
                       </Button>
                     ))}
@@ -269,13 +393,22 @@ function Catalog() {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Distance</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">
+                    Distance
+                  </h3>
                   <div className="grid grid-cols-1 gap-2">
-                    {([
-                      { id: "all", label: "Toutes les villes" },
-                      { id: "city", label: selectedCity ? `Uniquement ${selectedCity}` : "Ma ville (sélectionner)" },
-                      { id: "deliver", label: "Avec livraison possible" },
-                    ] as const).map(o => (
+                    {(
+                      [
+                        { id: "all", label: "Toutes les villes" },
+                        {
+                          id: "city",
+                          label: selectedCity
+                            ? `Uniquement ${selectedCity}`
+                            : "Ma ville (sélectionner)",
+                        },
+                        { id: "deliver", label: "Avec livraison possible" },
+                      ] as const
+                    ).map((o) => (
                       <Button
                         key={o.id}
                         variant={distanceFilter === o.id ? "default" : "outline"}
@@ -290,10 +423,17 @@ function Catalog() {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Langue</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">
+                    Langue
+                  </h3>
                   <div className="flex flex-wrap gap-2">
-                    {LANGUAGES.map(l => (
-                      <Badge key={l} variant={selectedLanguages.includes(l) ? "default" : "outline"} onClick={() => toggleLanguage(l)} className="cursor-pointer px-4 py-2 text-xs font-bold">
+                    {LANGUAGES.map((l) => (
+                      <Badge
+                        key={l}
+                        variant={selectedLanguages.includes(l) ? "default" : "outline"}
+                        onClick={() => toggleLanguage(l)}
+                        className="cursor-pointer px-4 py-2 text-xs font-bold"
+                      >
                         {l}
                       </Badge>
                     ))}
@@ -301,10 +441,17 @@ function Catalog() {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">{t("catalog.condition")}</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">
+                    {t("catalog.condition")}
+                  </h3>
                   <div className="flex flex-wrap gap-2">
-                    {CONDITIONS.map(c => (
-                      <Badge key={c} variant={selectedConditions.includes(c) ? "default" : "outline"} onClick={() => toggleCondition(c)} className="cursor-pointer px-4 py-2 text-xs font-bold">
+                    {CONDITIONS.map((c) => (
+                      <Badge
+                        key={c}
+                        variant={selectedConditions.includes(c) ? "default" : "outline"}
+                        onClick={() => toggleCondition(c)}
+                        className="cursor-pointer px-4 py-2 text-xs font-bold"
+                      >
                         {c}
                       </Badge>
                     ))}
@@ -312,10 +459,21 @@ function Catalog() {
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">{t("catalog.sortBy")}</h3>
+                  <h3 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">
+                    {t("catalog.sortBy")}
+                  </h3>
                   <div className="grid grid-cols-1 gap-2">
-                    {[{ id: "recent", label: t("catalog.sortRecent") }, { id: "price-asc", label: t("catalog.sortPriceAsc") }, { id: "price-desc", label: t("catalog.sortPriceDesc") }].map(o => (
-                      <Button key={o.id} variant={sortBy === o.id ? "default" : "outline"} onClick={() => setSortBy(o.id as typeof sortBy)} className="justify-start font-bold h-12 rounded-xl">
+                    {[
+                      { id: "recent", label: t("catalog.sortRecent") },
+                      { id: "price-asc", label: t("catalog.sortPriceAsc") },
+                      { id: "price-desc", label: t("catalog.sortPriceDesc") },
+                    ].map((o) => (
+                      <Button
+                        key={o.id}
+                        variant={sortBy === o.id ? "default" : "outline"}
+                        onClick={() => setSortBy(o.id as typeof sortBy)}
+                        className="justify-start font-bold h-12 rounded-xl"
+                      >
                         {o.label}
                       </Button>
                     ))}
@@ -323,9 +481,13 @@ function Catalog() {
                 </div>
               </div>
               <SheetFooter className="border-t pt-6 flex flex-col gap-3 mt-auto">
-                <Button onClick={resetAll} variant="ghost" className="w-full font-bold">{t("common.reset")}</Button>
+                <Button onClick={resetAll} variant="ghost" className="w-full font-bold">
+                  {t("common.reset")}
+                </Button>
                 <SheetClose asChild>
-                  <Button className="w-full h-14 rounded-2xl font-bold bg-primary text-lg">{t("common.apply")}</Button>
+                  <Button className="w-full h-14 rounded-2xl font-bold bg-primary text-lg">
+                    {t("common.apply")}
+                  </Button>
                 </SheetClose>
               </SheetFooter>
             </SheetContent>
@@ -334,8 +496,18 @@ function Catalog() {
 
         <ScrollArea className="w-full whitespace-nowrap">
           <div className="flex space-x-2">
-            {CATEGORIES.map(cat => (
-              <Badge key={cat} onClick={() => setSelectedCategory(cat)} variant={selectedCategory === cat ? "default" : "secondary"} className={cn("px-4 py-2 cursor-pointer text-xs font-bold border", selectedCategory === cat ? "bg-primary border-primary" : "bg-card border-border text-muted-foreground")}>
+            {CATEGORIES.map((cat) => (
+              <Badge
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                variant={selectedCategory === cat ? "default" : "secondary"}
+                className={cn(
+                  "px-4 py-2 cursor-pointer text-xs font-bold border",
+                  selectedCategory === cat
+                    ? "bg-primary border-primary"
+                    : "bg-card border-border text-muted-foreground",
+                )}
+              >
                 {cat}
               </Badge>
             ))}
@@ -347,7 +519,9 @@ function Catalog() {
       {/* Results bar with view toggle */}
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-muted-foreground">
-          {loading ? "Chargement…" : (
+          {loading ? (
+            "Chargement…"
+          ) : (
             <>
               <span className="font-bold text-foreground">{filteredBooks.length}</span>{" "}
               {filteredBooks.length > 1 ? "livres trouvés" : "livre trouvé"}
@@ -358,14 +532,24 @@ function Catalog() {
           <button
             onClick={() => setViewMode("grid")}
             aria-label="Vue grille"
-            className={cn("p-2 rounded-lg transition", viewMode === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+            className={cn(
+              "p-2 rounded-lg transition",
+              viewMode === "grid"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground",
+            )}
           >
             <LayoutGrid size={16} />
           </button>
           <button
             onClick={() => setViewMode("list")}
             aria-label="Vue liste"
-            className={cn("p-2 rounded-lg transition", viewMode === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+            className={cn(
+              "p-2 rounded-lg transition",
+              viewMode === "list"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground",
+            )}
           >
             <ListIcon size={16} />
           </button>
@@ -382,17 +566,25 @@ function Catalog() {
         <div className="text-center py-20 text-muted-foreground">{t("common.noResults")}</div>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 pb-8">
-          {visibleBooks.map(book => <BookCard key={book.id} book={book} />)}
+          {visibleBooks.map((book) => (
+            <BookCard key={book.id} book={book} />
+          ))}
         </div>
       ) : (
         <ul className="flex flex-col gap-3 pb-8">
-          {visibleBooks.map(book => <BookListRow key={book.id} book={book} />)}
+          {visibleBooks.map((book) => (
+            <BookListRow key={book.id} book={book} />
+          ))}
         </ul>
       )}
 
       {!loading && visibleCount < filteredBooks.length && (
         <div className="flex justify-center pb-8">
-          <Button variant="outline" onClick={() => setVisibleCount(c => Math.min(c + PAGE_SIZE, filteredBooks.length))} className="rounded-xl font-bold">
+          <Button
+            variant="outline"
+            onClick={() => setVisibleCount((c) => Math.min(c + PAGE_SIZE, filteredBooks.length))}
+            className="rounded-xl font-bold"
+          >
             Charger plus ({filteredBooks.length - visibleCount} restants)
           </Button>
         </div>
@@ -405,10 +597,24 @@ function BookListRow({ book }: { book: Book }) {
   const sb = statusBadge(book.status);
   return (
     <li>
-      <Link to="/book/$id" params={{ id: book.id }} className="flex gap-4 p-3 rounded-xl border bg-card hover:border-primary/50 hover:shadow-sm transition group">
+      <Link
+        to="/book/$id"
+        params={{ id: book.id }}
+        className="flex gap-4 p-3 rounded-xl border bg-card hover:border-primary/50 hover:shadow-sm transition group"
+      >
         <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
-          <img src={book.image_url} alt={book.title} loading="lazy" className="w-full h-full object-cover" />
-          <span className={cn("absolute bottom-1 left-1 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded", sb.cls)}>
+          <img
+            src={book.image_url}
+            alt={book.title}
+            loading="lazy"
+            className="w-full h-full object-cover"
+          />
+          <span
+            className={cn(
+              "absolute bottom-1 left-1 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded",
+              sb.cls,
+            )}
+          >
             {sb.label}
           </span>
         </div>
@@ -425,10 +631,22 @@ function BookListRow({ book }: { book: Book }) {
             {book.description || "—"}
           </p>
           <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground pt-2">
-            <span className="flex items-center gap-1"><MapPin size={11} />{book.city}</span>
+            <span className="flex items-center gap-1">
+              <MapPin size={11} />
+              {book.city}
+            </span>
             <span>· {book.seller_name}</span>
-            {book.can_deliver && <span className="flex items-center gap-1 text-emerald-600"><Truck size={11} />Livraison</span>}
-            {book.language && <Badge variant="outline" className="text-[9px] px-1.5 py-0">{book.language}</Badge>}
+            {book.can_deliver && (
+              <span className="flex items-center gap-1 text-emerald-600">
+                <Truck size={11} />
+                Livraison
+              </span>
+            )}
+            {book.language && (
+              <Badge variant="outline" className="text-[9px] px-1.5 py-0">
+                {book.language}
+              </Badge>
+            )}
           </div>
         </div>
       </Link>

@@ -1,16 +1,38 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ChevronLeft, MessageCircle, Star, Calendar, Users, BadgeCheck, MoreVertical, Ban, UserPlus, UserMinus } from "lucide-react";
+import {
+  ChevronLeft,
+  MessageCircle,
+  Star,
+  Calendar,
+  Users,
+  BadgeCheck,
+  MoreVertical,
+  Ban,
+  UserPlus,
+  UserMinus,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { BookCard } from "@/components/BookCard";
 import { SellerReviews } from "@/components/SellerReviews";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { sendEmail } from "@/lib/email";
@@ -29,7 +51,12 @@ function UserProfilePage() {
   const { chatId } = Route.useSearch();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [profile, setProfile] = useState<{ display_name: string | null; created_at?: string | null; verified?: boolean | null; phone_verified?: boolean | null } | null>(null);
+  const [profile, setProfile] = useState<{
+    display_name: string | null;
+    created_at?: string | null;
+    verified?: boolean | null;
+    phone_verified?: boolean | null;
+  } | null>(null);
   const [books, setBooks] = useState<Book[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,11 +68,29 @@ function UserProfilePage() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from("profiles").select("display_name, created_at, verified, phone_verified").eq("id", userId).maybeSingle(),
-      supabase.from("books").select("*").eq("seller_id", userId).order("created_at", { ascending: false }),
+      supabase
+        .from("profiles")
+        .select("display_name, created_at, verified, phone_verified")
+        .eq("id", userId)
+        .maybeSingle(),
+      supabase
+        .from("books")
+        .select("*")
+        .eq("seller_id", userId)
+        .order("created_at", { ascending: false }),
       supabase.from("reviews").select("*").eq("seller_id", userId),
-      supabase.from("follows").select("id", { count: "exact", head: true }).eq("following_id", userId),
-      user ? supabase.from("follows").select("id").eq("follower_id", user.id).eq("following_id", userId).maybeSingle() : Promise.resolve({ data: null } as any),
+      supabase
+        .from("follows")
+        .select("id", { count: "exact", head: true })
+        .eq("following_id", userId),
+      user
+        ? supabase
+            .from("follows")
+            .select("id")
+            .eq("follower_id", user.id)
+            .eq("following_id", userId)
+            .maybeSingle()
+        : Promise.resolve({ data: null } as any),
     ]).then(([p, b, r, fc, mf]: any[]) => {
       setProfile((p.data as any) ?? { display_name: null });
       setBooks((b.data as Book[]) ?? []);
@@ -57,7 +102,12 @@ function UserProfilePage() {
   }, [userId, user]);
 
   const displayName = profile?.display_name || "Utilisateur";
-  const initials = displayName.split(" ").map(s => s[0]).join("").slice(0, 2).toUpperCase();
+  const initials = displayName
+    .split(" ")
+    .map((s) => s[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
   const isMe = user?.id === userId;
   const avg = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
   const memberSince = profile?.created_at
@@ -84,26 +134,39 @@ function UserProfilePage() {
   };
 
   const toggleFollow = async () => {
-    if (!user) { navigate({ to: "/login" }); return; }
+    if (!user) {
+      navigate({ to: "/login" });
+      return;
+    }
     setFollowBusy(true);
     if (isFollowing) {
-      const { error } = await supabase.from("follows").delete().eq("follower_id", user.id).eq("following_id", userId);
+      const { error } = await supabase
+        .from("follows")
+        .delete()
+        .eq("follower_id", user.id)
+        .eq("following_id", userId);
       if (error) toast.error("Erreur lors du désabonnement");
       else {
         setIsFollowing(false);
-        setFollowersCount(c => Math.max(0, c - 1));
+        setFollowersCount((c) => Math.max(0, c - 1));
         toast.success(`Vous ne suivez plus ${displayName}`);
       }
     } else {
-      const { error } = await supabase.from("follows").insert({ follower_id: user.id, following_id: userId });
+      const { error } = await supabase
+        .from("follows")
+        .insert({ follower_id: user.id, following_id: userId });
       if (error) toast.error("Impossible de suivre cet utilisateur");
       else {
         setIsFollowing(true);
-        setFollowersCount(c => c + 1);
+        setFollowersCount((c) => c + 1);
         toast.success(`Vous suivez ${displayName}`);
-        const followerName = user.user_metadata?.display_name || user.email?.split("@")[0] || "Quelqu'un";
+        const followerName =
+          user.user_metadata?.display_name || user.email?.split("@")[0] || "Quelqu'un";
         sendEmail("send-admin-email", {
-          userId, kind: "follower", followerName, followerId: user.id,
+          userId,
+          kind: "follower",
+          followerName,
+          followerId: user.id,
         });
       }
     }
@@ -122,7 +185,10 @@ function UserProfilePage() {
             <DropdownMenuTrigger className="p-2 rounded-full hover:bg-muted">
               <MoreVertical size={18} />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 shadow-lg animate-in fade-in-0 zoom-in-95">
+            <DropdownMenuContent
+              align="end"
+              className="w-56 shadow-lg animate-in fade-in-0 zoom-in-95"
+            >
               <DropdownMenuItem
                 className="text-destructive focus:text-destructive focus:bg-destructive/10"
                 onSelect={() => setConfirmBlock(true)}
@@ -142,8 +208,8 @@ function UserProfilePage() {
               <Ban size={18} className="text-destructive" /> Bloquer {displayName} ?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Voulez-vous bloquer {displayName} ? Il ne pourra plus vous envoyer de messages
-              ni voir vos annonces.
+              Voulez-vous bloquer {displayName} ? Il ne pourra plus vous envoyer de messages ni voir
+              vos annonces.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -185,7 +251,15 @@ function UserProfilePage() {
                 disabled={followBusy}
                 onClick={toggleFollow}
               >
-                {isFollowing ? <><UserMinus size={13} /> Se désabonner</> : <><UserPlus size={13} /> Suivre</>}
+                {isFollowing ? (
+                  <>
+                    <UserMinus size={13} /> Se désabonner
+                  </>
+                ) : (
+                  <>
+                    <UserPlus size={13} /> Suivre
+                  </>
+                )}
               </Button>
             )}
           </div>
@@ -241,10 +315,14 @@ function UserProfilePage() {
 
           <TabsContent value="annonces" className="mt-4">
             {books.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-8">Aucune annonce publiée.</p>
+              <p className="text-xs text-muted-foreground text-center py-8">
+                Aucune annonce publiée.
+              </p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
-                {books.map(book => <BookCard key={book.id} book={book} />)}
+                {books.map((book) => (
+                  <BookCard key={book.id} book={book} />
+                ))}
               </div>
             )}
           </TabsContent>

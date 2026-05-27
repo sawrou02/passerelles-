@@ -38,40 +38,39 @@ export function CharteModal({ open, onOpenChange, onAccept, readOnly, mandatory 
             Charte de la Communauté MyKutub
           </DialogTitle>
           <DialogDescription>
-            Nous visons une communauté fraternelle autour du partage du savoir islamique.
-            Chaque membre s'engage à respecter les règles suivantes.
+            Nous visons une communauté fraternelle autour du partage du savoir islamique. Chaque
+            membre s'engage à respecter les règles suivantes.
           </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="flex-1 pr-4 -mr-2 max-h-[55vh]">
           <ol className="space-y-4 text-sm leading-relaxed">
             <li>
-              <strong>1. Honnêteté</strong> — Décrire les livres avec exactitude
-              (état, édition, défauts).
+              <strong>1. Honnêteté</strong> — Décrire les livres avec exactitude (état, édition,
+              défauts).
             </li>
             <li>
-              <strong>2. Respect</strong> — Utiliser un langage courtois et fraternel
-              (pas d'insultes, pas de fitna).
+              <strong>2. Respect</strong> — Utiliser un langage courtois et fraternel (pas
+              d'insultes, pas de fitna).
             </li>
             <li>
-              <strong>3. Bienveillance</strong> — Faciliter les dons et aider les
-              frères et sœurs.
+              <strong>3. Bienveillance</strong> — Faciliter les dons et aider les frères et sœurs.
             </li>
             <li>
-              <strong>4. Conformité</strong> — Ne proposer que des livres islamiques
-              authentiques et respectueux.
+              <strong>4. Conformité</strong> — Ne proposer que des livres islamiques authentiques et
+              respectueux.
             </li>
             <li>
-              <strong>5. Responsabilité</strong> — Honorer ses engagements (envoyer
-              le livre, payer le prix convenu).
+              <strong>5. Responsabilité</strong> — Honorer ses engagements (envoyer le livre, payer
+              le prix convenu).
             </li>
             <li>
-              <strong>6. Respect des livres</strong> — Traiter les ouvrages religieux
-              avec soin et dignité.
+              <strong>6. Respect des livres</strong> — Traiter les ouvrages religieux avec soin et
+              dignité.
             </li>
             <li>
-              <strong>7. Confidentialité</strong> — Ne pas divulguer les informations
-              personnelles des membres.
+              <strong>7. Confidentialité</strong> — Ne pas divulguer les informations personnelles
+              des membres.
             </li>
             <li>
               <strong>8. Interdictions strictes</strong>
@@ -90,28 +89,26 @@ export function CharteModal({ open, onOpenChange, onAccept, readOnly, mandatory 
               </ul>
             </li>
             <li>
-              <strong>10. Droits d'auteur</strong> — Interdiction de vendre des copies
-              illégales ou photocopiées.
+              <strong>10. Droits d'auteur</strong> — Interdiction de vendre des copies illégales ou
+              photocopiées.
             </li>
             <li>
-              <strong>11. Comptes</strong> — Un seul compte par personne, identité
-              réelle obligatoire.
+              <strong>11. Comptes</strong> — Un seul compte par personne, identité réelle
+              obligatoire.
             </li>
             <li>
-              <strong>12. Signalement</strong> — Tout comportement suspect doit être
-              signalé à l'admin.
+              <strong>12. Signalement</strong> — Tout comportement suspect doit être signalé à
+              l'admin.
             </li>
             <li>
-              <strong>13. Respect des décisions</strong> — Les décisions de modération
-              sont définitives.
+              <strong>13. Respect des décisions</strong> — Les décisions de modération sont
+              définitives.
             </li>
           </ol>
           <p className="mt-5 text-sm text-muted-foreground italic">
             Toute violation peut entraîner la suppression du compte.
           </p>
-          <p className="mt-3 text-center font-headline text-primary">
-            JazakAllahu Khayran 🤲
-          </p>
+          <p className="mt-3 text-center font-headline text-primary">JazakAllahu Khayran 🤲</p>
         </ScrollArea>
 
         <DialogFooter className="gap-2 sm:gap-2">

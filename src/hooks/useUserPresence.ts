@@ -43,7 +43,6 @@ export function useUserPresence(userId?: string | null) {
   }, [userId]);
 
   // Treat as offline if last_seen older than 90s
-  const stale =
-    presence.last_seen && Date.now() - new Date(presence.last_seen).getTime() > 90_000;
+  const stale = presence.last_seen && Date.now() - new Date(presence.last_seen).getTime() > 90_000;
   return { is_online: presence.is_online && !stale, last_seen: presence.last_seen };
 }

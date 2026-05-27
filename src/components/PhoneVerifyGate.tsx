@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +26,10 @@ export function PhoneVerifyGate() {
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!user) { setNeeds(false); return; }
+    if (!user) {
+      setNeeds(false);
+      return;
+    }
     let cancelled = false;
     (async () => {
       const { data } = await supabase
@@ -34,16 +43,23 @@ export function PhoneVerifyGate() {
       const pendingPhone = (user.user_metadata as any)?.phone || (data as any)?.phone || "";
       if (pendingPhone) setPhone(pendingPhone);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   useEffect(() => {
     if (cooldown <= 0) {
-      if (intervalRef.current) { window.clearInterval(intervalRef.current); intervalRef.current = null; }
+      if (intervalRef.current) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
       return;
     }
     intervalRef.current = window.setInterval(() => setCooldown((c) => (c > 0 ? c - 1 : 0)), 1000);
-    return () => { if (intervalRef.current) window.clearInterval(intervalRef.current); };
+    return () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
+    };
   }, [cooldown]);
 
   if (!user || !needs) return null;
@@ -57,7 +73,9 @@ export function PhoneVerifyGate() {
     const { data: session } = await supabase.auth.getSession();
     const token = session.session?.access_token;
     try {
-      const { data, error } = await supabase.functions.invoke("send-phone-verification", { body: { phone: phone.trim() } });
+      const { data, error } = await supabase.functions.invoke("send-phone-verification", {
+        body: { phone: phone.trim() },
+      });
       if (error || (data as any)?.error) {
         toast.error((data as any)?.error || error?.message || "Erreur d'envoi du code.");
       } else {
@@ -102,7 +120,11 @@ export function PhoneVerifyGate() {
       >
         <DialogHeader className="px-6 pt-6">
           <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-            {step === "phone" ? <Phone className="text-primary" size={22} /> : <ShieldCheck className="text-primary" size={22} />}
+            {step === "phone" ? (
+              <Phone className="text-primary" size={22} />
+            ) : (
+              <ShieldCheck className="text-primary" size={22} />
+            )}
           </div>
           <DialogTitle className="text-center font-headline text-xl">
             {step === "phone" ? "Vérifiez votre numéro" : "Entrez le code reçu"}
@@ -160,12 +182,20 @@ export function PhoneVerifyGate() {
 
         <div className="px-6 pb-6">
           {step === "phone" ? (
-            <Button onClick={sendCode} disabled={sending} className="w-full h-12 rounded-xl font-bold">
+            <Button
+              onClick={sendCode}
+              disabled={sending}
+              className="w-full h-12 rounded-xl font-bold"
+            >
               {sending ? <Loader2 className="animate-spin" /> : "Envoyer le code"}
             </Button>
           ) : (
             <div className="space-y-2">
-              <Button onClick={verifyCode} disabled={verifying || code.length !== 6} className="w-full h-12 rounded-xl font-bold">
+              <Button
+                onClick={verifyCode}
+                disabled={verifying || code.length !== 6}
+                className="w-full h-12 rounded-xl font-bold"
+              >
                 {verifying ? <Loader2 className="animate-spin" /> : "Vérifier mon numéro"}
               </Button>
               <button

@@ -62,7 +62,8 @@ export function BookReservation({ book, onBookChange }: Props) {
     if (!user) return toast.error("Connexion requise.");
     if (status !== "available") return;
     setBusy(true);
-    const requesterName = user.user_metadata?.display_name || user.email?.split("@")[0] || "Utilisateur";
+    const requesterName =
+      user.user_metadata?.display_name || user.email?.split("@")[0] || "Utilisateur";
     const { error } = await supabase.from("book_requests").insert({
       book_id: book.id,
       requester_id: user.id,
@@ -79,9 +80,12 @@ export function BookReservation({ book, onBookChange }: Props) {
         link: `/book/${book.id}`,
       });
       sendEmail("send-reservation-email", {
-        userId: book.seller_id, kind: "request",
-        recipientName: book.seller_name, otherName: requesterName,
-        bookTitle: book.title, bookId: book.id,
+        userId: book.seller_id,
+        kind: "request",
+        recipientName: book.seller_name,
+        otherName: requesterName,
+        bookTitle: book.title,
+        bookId: book.id,
       });
       toast.success("Demande envoyée !");
     }
@@ -130,9 +134,12 @@ export function BookReservation({ book, onBookChange }: Props) {
     ];
     if (notifs.length) await supabase.from("notifications").insert(notifs);
     sendEmail("send-reservation-email", {
-      userId: req.requester_id, kind: "confirmed",
-      recipientName: req.requester_name, otherName: book.seller_name,
-      bookTitle: book.title, bookId: book.id,
+      userId: req.requester_id,
+      kind: "confirmed",
+      recipientName: req.requester_name,
+      otherName: book.seller_name,
+      bookTitle: book.title,
+      bookId: book.id,
     });
     toast.success("Livre réservé.");
     setBusy(false);
@@ -153,20 +160,20 @@ export function BookReservation({ book, onBookChange }: Props) {
         link: `/book/${book.id}`,
       });
       sendEmail("send-reservation-email", {
-        userId: previous, kind: "cancelled",
-        bookTitle: book.title, bookId: book.id,
+        userId: previous,
+        kind: "cancelled",
+        bookTitle: book.title,
+        bookId: book.id,
       });
     }
-    if (!error) await supabase.from("book_requests").update({ status: "pending" }).eq("book_id", book.id);
+    if (!error)
+      await supabase.from("book_requests").update({ status: "pending" }).eq("book_id", book.id);
     setBusy(false);
   };
 
   const markGiven = async () => {
     setBusy(true);
-    const { error } = await supabase
-      .from("books")
-      .update({ status: "given" })
-      .eq("id", book.id);
+    const { error } = await supabase.from("books").update({ status: "given" }).eq("id", book.id);
     if (!error && book.reserved_by) {
       await supabase.from("notifications").insert({
         user_id: book.reserved_by,
@@ -203,15 +210,12 @@ export function BookReservation({ book, onBookChange }: Props) {
         </p>
       )}
 
-
       {/* Owner controls */}
       {isOwner && (
         <div className="space-y-3">
           {status === "available" && (
             <div>
-              <p className="text-sm font-semibold mb-2">
-                Demandes ({requests.length})
-              </p>
+              <p className="text-sm font-semibold mb-2">Demandes ({requests.length})</p>
               {requests.length === 0 ? (
                 <p className="text-xs text-muted-foreground">
                   Personne n'a encore demandé ce livre.
@@ -235,7 +239,10 @@ export function BookReservation({ book, onBookChange }: Props) {
                         <div className="min-w-0">
                           <p className="text-sm font-medium truncate">{r.requester_name}</p>
                           <p className="text-[10px] text-muted-foreground">
-                            {formatDistanceToNow(new Date(r.created_at), { addSuffix: true, locale: fr })}
+                            {formatDistanceToNow(new Date(r.created_at), {
+                              addSuffix: true,
+                              locale: fr,
+                            })}
                           </p>
                         </div>
                       </div>
@@ -259,14 +266,20 @@ export function BookReservation({ book, onBookChange }: Props) {
               <p className="text-sm">
                 Réservé pour :{" "}
                 <span className="font-semibold">
-                  {requests.find((r) => r.requester_id === book.reserved_by)?.requester_name ?? "Utilisateur"}
+                  {requests.find((r) => r.requester_id === book.reserved_by)?.requester_name ??
+                    "Utilisateur"}
                 </span>
               </p>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button onClick={markGiven} disabled={busy} className="flex-1 rounded-full">
                   <Check size={14} className="mr-1" /> Marquer comme donné
                 </Button>
-                <Button onClick={cancelReservation} disabled={busy} variant="outline" className="flex-1 rounded-full">
+                <Button
+                  onClick={cancelReservation}
+                  disabled={busy}
+                  variant="outline"
+                  className="flex-1 rounded-full"
+                >
                   <X size={14} className="mr-1" /> Annuler la réservation
                 </Button>
               </div>

@@ -9,9 +9,21 @@ export function useIsAdmin() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { setIsAdmin(false); setLoading(false); return; }
-    supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle()
-      .then(({ data }) => { setIsAdmin(!!data); setLoading(false); });
+    if (!user) {
+      setIsAdmin(false);
+      setLoading(false);
+      return;
+    }
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then(({ data }) => {
+        setIsAdmin(!!data);
+        setLoading(false);
+      });
   }, [user, authLoading]);
 
   return { isAdmin, loading };

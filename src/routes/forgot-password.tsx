@@ -39,11 +39,17 @@ function ForgotPasswordPage() {
           <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
             <MailCheck className="text-primary" size={32} />
           </div>
-          <h1 className="font-headline text-2xl font-black uppercase tracking-tighter">Email envoyé</h1>
+          <h1 className="font-headline text-2xl font-black uppercase tracking-tighter">
+            Email envoyé
+          </h1>
           <p className="text-sm text-muted-foreground">
-            Si un compte existe pour <strong className="text-foreground">{sent}</strong>, vous recevrez un lien pour réinitialiser votre mot de passe.
+            Si un compte existe pour <strong className="text-foreground">{sent}</strong>, vous
+            recevrez un lien pour réinitialiser votre mot de passe.
           </p>
-          <Link to="/login" className="inline-block w-full h-12 leading-[3rem] text-xs font-black bg-foreground text-background uppercase tracking-widest">
+          <Link
+            to="/login"
+            className="inline-block w-full h-12 leading-[3rem] text-xs font-black bg-foreground text-background uppercase tracking-widest"
+          >
             Retour à la connexion
           </Link>
         </div>
@@ -55,7 +61,9 @@ function ForgotPasswordPage() {
     <div className="bg-card min-h-screen p-6 flex flex-col items-center">
       <header className="w-full mb-12 flex flex-col items-center">
         <div className="w-full flex items-start">
-          <button onClick={() => history.back()} className="p-2 -ml-2"><ChevronLeft size={24} /></button>
+          <button onClick={() => history.back()} className="p-2 -ml-2">
+            <ChevronLeft size={24} />
+          </button>
         </div>
         <h1 className="font-headline text-2xl font-black text-center mt-4 tracking-tighter uppercase">
           MOT DE PASSE OUBLIÉ
@@ -67,13 +75,23 @@ function ForgotPasswordPage() {
 
       <form onSubmit={handleSubmit} className="w-full space-y-6 max-w-sm">
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest">E-mail *</Label>
-          <Input id="email" name="email" type="email" required
-            className="h-12 bg-card border-muted rounded-none focus-visible:ring-foreground" />
+          <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest">
+            E-mail *
+          </Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            required
+            className="h-12 bg-card border-muted rounded-none focus-visible:ring-foreground"
+          />
         </div>
 
-        <Button type="submit" disabled={loading}
-          className="w-full h-12 text-xs font-black rounded-none bg-foreground text-background uppercase tracking-widest hover:bg-foreground/90">
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-full h-12 text-xs font-black rounded-none bg-foreground text-background uppercase tracking-widest hover:bg-foreground/90"
+        >
           {loading ? <Loader2 className="animate-spin" /> : "ENVOYER LE LIEN"}
         </Button>
 

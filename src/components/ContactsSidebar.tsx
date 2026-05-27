@@ -5,7 +5,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { OnlineDot } from "@/components/OnlineDot";
 import { cn } from "@/lib/utils";
 import type { Chat } from "@/lib/mykutub";
-import { MessageSquare, Search, User as UserIcon, BookOpen, MoreVertical, Trash2, Archive, ArchiveRestore, BellOff, Bell, Ban } from "lucide-react";
+import {
+  MessageSquare,
+  Search,
+  User as UserIcon,
+  BookOpen,
+  MoreVertical,
+  Trash2,
+  Archive,
+  ArchiveRestore,
+  BellOff,
+  Bell,
+  Ban,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,7 +66,11 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterMode>("all");
   const [confirmDelete, setConfirmDelete] = useState<Chat | null>(null);
-  const [confirmBlock, setConfirmBlock] = useState<{ chat: Chat; userId: string; name: string } | null>(null);
+  const [confirmBlock, setConfirmBlock] = useState<{
+    chat: Chat;
+    userId: string;
+    name: string;
+  } | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [blockedIds, setBlockedIds] = useState<Set<string>>(new Set());
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -65,25 +81,41 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
       setLoading(false);
       return;
     }
-    supabase.from("profiles").select("id,display_name,avatar_url").eq("id", user.id).single()
+    supabase
+      .from("profiles")
+      .select("id,display_name,avatar_url")
+      .eq("id", user.id)
+      .single()
       .then(({ data }) => setMe(data as ProfileLite | null));
     const loadBlocked = async () => {
-      const { data } = await supabase.from("blocked_users").select("blocked_id").eq("blocker_id", user.id);
+      const { data } = await supabase
+        .from("blocked_users")
+        .select("blocked_id")
+        .eq("blocker_id", user.id);
       setBlockedIds(new Set((data ?? []).map((r: { blocked_id: string }) => r.blocked_id)));
     };
     const load = async () => {
       const { data } = await supabase
-        .from("chats").select("*")
+        .from("chats")
+        .select("*")
         .contains("participants", [user.id])
         .order("last_message_at", { ascending: false });
       const list = (data as Chat[]) ?? [];
       setChats(list);
-      const otherIds = Array.from(new Set(list.map((c) => c.participants.find((p) => p !== user.id)).filter(Boolean) as string[]));
+      const otherIds = Array.from(
+        new Set(
+          list.map((c) => c.participants.find((p) => p !== user.id)).filter(Boolean) as string[],
+        ),
+      );
       if (otherIds.length) {
         const { data: profs } = await supabase
-          .from("profiles").select("id,display_name,avatar_url").in("id", otherIds);
+          .from("profiles")
+          .select("id,display_name,avatar_url")
+          .in("id", otherIds);
         const map: Record<string, ProfileLite> = {};
-        (profs as ProfileLite[] ?? []).forEach((p) => { map[p.id] = p; });
+        ((profs as ProfileLite[]) ?? []).forEach((p) => {
+          map[p.id] = p;
+        });
         setProfiles(map);
       }
       setLoading(false);
@@ -93,9 +125,20 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
     const channel = supabase
       .channel(`chats-sidebar-${user.id}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "chats" }, load)
-      .on("postgres_changes", { event: "*", schema: "public", table: "blocked_users", filter: `blocker_id=eq.${user.id}` }, loadBlocked)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "blocked_users",
+          filter: `blocker_id=eq.${user.id}`,
+        },
+        loadBlocked,
+      )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const filtered = useMemo(() => {
@@ -115,9 +158,11 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
       }
       if (!q) return true;
       const name = (otherId && profiles[otherId]?.display_name) || "";
-      return name.toLowerCase().includes(q)
-        || (c.book_title ?? "").toLowerCase().includes(q)
-        || (c.last_message ?? "").toLowerCase().includes(q);
+      return (
+        name.toLowerCase().includes(q) ||
+        (c.book_title ?? "").toLowerCase().includes(q) ||
+        (c.last_message ?? "").toLowerCase().includes(q)
+      );
     });
   }, [chats, profiles, search, user, filter, blockedIds]);
 
@@ -135,7 +180,11 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
 
   if (!user) return null;
 
-  const updateChatArray = async (chat: Chat, column: "deleted_for" | "archived_for" | "muted_for", add: boolean) => {
+  const updateChatArray = async (
+    chat: Chat,
+    column: "deleted_for" | "archived_for" | "muted_for",
+    add: boolean,
+  ) => {
     const current = (chat[column] ?? []) as string[];
     const next = add
       ? Array.from(new Set([...current, user.id]))
@@ -144,7 +193,10 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
     setChats((prev) => prev.map((c) => (c.id === chat.id ? { ...c, [column]: next } : c)));
     const payload: Record<string, string[]> = { [column]: next };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await supabase.from("chats").update(payload as any).eq("id", chat.id);
+    const { error } = await supabase
+      .from("chats")
+      .update(payload as any)
+      .eq("id", chat.id);
     if (error) {
       toast.error("Action impossible");
       setChats((prev) => prev.map((c) => (c.id === chat.id ? { ...c, [column]: current } : c)));
@@ -184,8 +236,14 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
     }
   };
 
-  const myName = me?.display_name || user.user_metadata?.display_name || user.email?.split("@")[0] || "Moi";
-  const myInitials = myName.split(" ").map((s: string) => s[0]).join("").slice(0, 2).toUpperCase();
+  const myName =
+    me?.display_name || user.user_metadata?.display_name || user.email?.split("@")[0] || "Moi";
+  const myInitials = myName
+    .split(" ")
+    .map((s: string) => s[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <div className="flex flex-col h-full bg-card">
@@ -195,7 +253,9 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
           {me?.avatar_url ? (
             <img src={me.avatar_url} alt={myName} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-sm font-bold text-muted-foreground">{myInitials || <UserIcon size={18} />}</span>
+            <span className="text-sm font-bold text-muted-foreground">
+              {myInitials || <UserIcon size={18} />}
+            </span>
           )}
         </div>
         <div className="min-w-0">
@@ -207,7 +267,10 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
       {/* Search */}
       <div className="px-3 py-2 border-b">
         <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -219,25 +282,33 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
 
       {/* Filter tabs */}
       <div className="px-3 py-2 border-b flex items-center gap-2 flex-wrap">
-        {([
+        {[
           { key: "all" as const, label: `Tout (${counts.all})` },
           { key: "unread" as const, label: "Non lus", badge: counts.unread },
           { key: "archived" as const, label: `Archivées (${counts.archived})` },
-        ]).map((t) => (
+        ].map((t) => (
           <button
             key={t.key}
             onClick={() => setFilter(t.key)}
             className={cn(
               "px-3 py-1.5 rounded-full text-xs font-semibold transition-colors flex items-center gap-1",
-              filter === t.key ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
+              filter === t.key
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/70",
             )}
           >
             {t.label}
             {t.key === "unread" && (t.badge ?? 0) > 0 && (
-              <span className={cn(
-                "min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center",
-                filter === "unread" ? "bg-primary-foreground text-primary" : "bg-destructive text-white",
-              )}>{t.badge}</span>
+              <span
+                className={cn(
+                  "min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center",
+                  filter === "unread"
+                    ? "bg-primary-foreground text-primary"
+                    : "bg-destructive text-white",
+                )}
+              >
+                {t.badge}
+              </span>
             )}
           </button>
         ))}
@@ -273,12 +344,17 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
                 key={chat.id}
                 className={cn(
                   "group relative border-b border-border/40 border-l-4",
-                  isActive ? "bg-primary/5 border-l-primary" : "border-l-transparent bg-card hover:bg-muted/40",
+                  isActive
+                    ? "bg-primary/5 border-l-primary"
+                    : "border-l-transparent bg-card hover:bg-muted/40",
                 )}
                 onTouchStart={() => startLongPress(chat)}
                 onTouchEnd={cancelLongPress}
                 onTouchMove={cancelLongPress}
-                onContextMenu={(e) => { e.preventDefault(); setOpenMenuId(chat.id); }}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  setOpenMenuId(chat.id);
+                }}
               >
                 <Link
                   to="/messages/$id"
@@ -289,7 +365,11 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
                   <div className="relative flex-shrink-0">
                     <div className="w-12 h-14 rounded-md bg-muted overflow-hidden border flex items-center justify-center">
                       {chat.book_image_url ? (
-                        <img src={chat.book_image_url} alt={chat.book_title ?? ""} className="w-full h-full object-cover" />
+                        <img
+                          src={chat.book_image_url}
+                          alt={chat.book_title ?? ""}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <BookOpen size={18} className="text-muted-foreground/50" />
                       )}
@@ -300,17 +380,34 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline gap-2">
-                      <p className={cn("text-sm truncate flex items-center gap-1", isUnread ? "font-bold" : "font-semibold")}>
+                      <p
+                        className={cn(
+                          "text-sm truncate flex items-center gap-1",
+                          isUnread ? "font-bold" : "font-semibold",
+                        )}
+                      >
                         {chat.book_title || "Conversation"}
-                        {isMuted && <BellOff size={11} className="text-muted-foreground/70 flex-shrink-0" />}
+                        {isMuted && (
+                          <BellOff size={11} className="text-muted-foreground/70 flex-shrink-0" />
+                        )}
                       </p>
-                      <span className={cn("text-[10px] flex-shrink-0", isUnread ? "text-primary font-semibold" : "text-muted-foreground")}>
+                      <span
+                        className={cn(
+                          "text-[10px] flex-shrink-0",
+                          isUnread ? "text-primary font-semibold" : "text-muted-foreground",
+                        )}
+                      >
                         {lastUpdate ? formatTime(lastUpdate) : ""}
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground truncate mt-0.5">{contactName}</p>
                     <div className="flex justify-between items-center gap-2 mt-0.5">
-                      <p className={cn("text-xs truncate", isUnread ? "font-semibold text-foreground" : "text-muted-foreground/80")}>
+                      <p
+                        className={cn(
+                          "text-xs truncate",
+                          isUnread ? "font-semibold text-foreground" : "text-muted-foreground/80",
+                        )}
+                      >
                         {chat.last_message || "Nouvelle conversation"}
                       </p>
                       {isUnread && !isMuted && (
@@ -328,7 +425,10 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
                     onOpenChange={(o) => setOpenMenuId(o ? chat.id : null)}
                   >
                     <DropdownMenuTrigger
-                      onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
                       className={cn(
                         "h-8 w-8 inline-flex items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-opacity",
                         "md:opacity-0 md:group-hover:opacity-100",
@@ -346,20 +446,29 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
                       <DropdownMenuItem
                         onSelect={() => updateChatArray(chat, "archived_for", !isArchived)}
                       >
-                        {isArchived ? <ArchiveRestore size={15} className="mr-2" /> : <Archive size={15} className="mr-2" />}
+                        {isArchived ? (
+                          <ArchiveRestore size={15} className="mr-2" />
+                        ) : (
+                          <Archive size={15} className="mr-2" />
+                        )}
                         {isArchived ? "Désarchiver" : "Archiver la conversation"}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onSelect={() => updateChatArray(chat, "muted_for", !isMuted)}
                       >
-                        {isMuted ? <Bell size={15} className="mr-2" /> : <BellOff size={15} className="mr-2" />}
+                        {isMuted ? (
+                          <Bell size={15} className="mr-2" />
+                        ) : (
+                          <BellOff size={15} className="mr-2" />
+                        )}
                         {isMuted ? "Réactiver les notifications" : "Désactiver les notifications"}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         className="text-destructive focus:text-destructive focus:bg-destructive/10"
                         onSelect={() => {
-                          if (otherId) setConfirmBlock({ chat, userId: otherId, name: contactName });
+                          if (otherId)
+                            setConfirmBlock({ chat, userId: otherId, name: contactName });
                         }}
                       >
                         <Ban size={15} className="mr-2" />
@@ -386,8 +495,8 @@ export function ContactsSidebar({ activeChatId }: { activeChatId?: string }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer la conversation ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer cette conversation ? Elle disparaîtra de votre liste,
-              mais l'autre utilisateur la verra toujours.
+              Êtes-vous sûr de vouloir supprimer cette conversation ? Elle disparaîtra de votre
+              liste, mais l'autre utilisateur la verra toujours.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
