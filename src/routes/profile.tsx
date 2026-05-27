@@ -198,8 +198,16 @@ function ProfilePage() {
       })
       .eq("id", user.id);
     setSaving(false);
-    if (error) toast.error(error.message);
-    else toast.success(t("profile.profileSaved"));
+    if (error) {
+      // 23505 = unique_violation Postgres (cf. migration uq_profiles_phone)
+      if (error.code === "23505" && error.message.includes("uq_profiles_phone")) {
+        toast.error("Ce numéro de téléphone est déjà utilisé par un autre compte.");
+      } else {
+        toast.error(error.message);
+      }
+    } else {
+      toast.success(t("profile.profileSaved"));
+    }
   };
 
   if (authLoading) return <div className="p-10 text-center">{t("common.loading")}</div>;

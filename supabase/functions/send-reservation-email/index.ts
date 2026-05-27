@@ -62,9 +62,15 @@ Deno.serve(async (req) => {
       buttons = [{ label: "Explorer le catalogue", url: siteLink("/catalog") }];
     }
 
+    // Réserve atomiquement le quota AVANT d'envoyer (anti race-condition).
+    const reserved = await logSent(b.userId, `reservation_${b.kind}`, b.bookId ?? undefined);
+    if (!reserved)
+      return new Response(JSON.stringify({ skipped: "throttled" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+
     const html = renderEmail({ title, bodyHtml: body, buttons, recipientEmail: allow.email! });
     await sendResendEmail(allow.email!, subject, html);
-    await logSent(b.userId, `reservation_${b.kind}`, b.bookId ?? null);
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

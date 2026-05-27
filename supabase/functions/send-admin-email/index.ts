@@ -95,9 +95,15 @@ Deno.serve(async (req) => {
       body = `<p>${(b.message ?? "").replace(/\n/g, "<br/>")}</p>`;
     }
 
+    // Réserve atomiquement le quota AVANT d'envoyer (anti race-condition).
+    const reserved = await logSent(b.userId, `admin_${b.kind}`);
+    if (!reserved)
+      return new Response(JSON.stringify({ skipped: "throttled" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+
     const html = renderEmail({ title, bodyHtml: body, buttons, recipientEmail: allow.email! });
     await sendResendEmail(allow.email!, subject, html);
-    await logSent(b.userId, `admin_${b.kind}`);
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

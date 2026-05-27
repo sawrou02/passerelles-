@@ -24,11 +24,17 @@ Deno.serve(async (req) => {
       userId: b.userId,
       emailType: "message",
       preferenceCol: "notify_messages",
-      contextId: b.chatId,
-      perContextWindowMinutes: 30,
     });
     if (!allow.ok)
       return new Response(JSON.stringify({ skipped: allow.reason }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+
+    // Réserve atomiquement le quota AVANT d'envoyer (anti race-condition).
+    // 1 email / chat / 30 min, 5 emails / jour / user.
+    const reserved = await logSent(b.userId, "message", b.chatId, 30);
+    if (!reserved)
+      return new Response(JSON.stringify({ skipped: "throttled" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
 
@@ -43,7 +49,6 @@ Deno.serve(async (req) => {
       recipientEmail: allow.email!,
     });
     await sendResendEmail(allow.email!, subject, html);
-    await logSent(b.userId, "message", b.chatId);
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

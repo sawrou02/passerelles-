@@ -77,7 +77,12 @@ export async function sendResendEmail(to: string, subject: string, html: string)
   return await res.json();
 }
 
-// Returns true if email is allowed (passes all anti-spam + preference checks)
+// Returns true if email is allowed (passes all anti-spam + preference checks).
+// ⚠️ Cette fonction ne logue PAS l'envoi — l'appelant doit ensuite invoquer
+// logSent() pour réserver le quota de manière atomique (anti race-condition).
+//
+// L'usage typique est : check via shouldSend → si ok, immédiatement logSent
+// (qui re-vérifie atomiquement). Si logSent renvoie false, ne pas envoyer.
 export async function shouldSend(opts: {
   userId: string;
   emailType: string;
@@ -101,37 +106,33 @@ export async function shouldSend(opts: {
   const email = u?.user?.email;
   if (!email) return { ok: false, reason: "no_email" };
 
-  // Daily cap: 5 / day
-  const dayAgo = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
-  const { count: dailyCount } = await admin
-    .from("email_throttle")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", opts.userId)
-    .gte("sent_at", dayAgo);
-  if ((dailyCount ?? 0) >= 5) return { ok: false, email, reason: "daily_cap" };
-
-  // Per-context window (e.g. 1 message email / chat / 30 min)
-  if (opts.contextId && opts.perContextWindowMinutes) {
-    const since = new Date(Date.now() - opts.perContextWindowMinutes * 60 * 1000).toISOString();
-    const { count: ctxCount } = await admin
-      .from("email_throttle")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", opts.userId)
-      .eq("email_type", opts.emailType)
-      .eq("context_id", opts.contextId)
-      .gte("sent_at", since);
-    if ((ctxCount ?? 0) >= 1) return { ok: false, email, reason: "context_throttle" };
-  }
-
   return { ok: true, email };
 }
 
-export async function logSent(userId: string, emailType: string, contextId?: string) {
-  await admin.from("email_throttle").insert({
-    user_id: userId,
-    email_type: emailType,
-    context_id: contextId ?? null,
+// Logue un envoi de manière ATOMIQUE via la RPC email_throttle_try_log qui
+// prend un advisory lock sur l'user_id, re-vérifie les caps (5/jour,
+// 1/contexte/fenêtre) et insert dans la même transaction. Renvoie true si
+// le log a été créé (= l'email peut partir), false si un cap est atteint.
+//
+// Remplace l'ancien helper logSent() qui se contentait d'un INSERT sans
+// vérification — pouvant générer des dépassements en cas d'appels parallèles.
+export async function logSent(
+  userId: string,
+  emailType: string,
+  contextId?: string,
+  perContextWindowMinutes?: number,
+): Promise<boolean> {
+  const { data, error } = await admin.rpc("email_throttle_try_log", {
+    _user_id: userId,
+    _email_type: emailType,
+    _context_id: contextId ?? null,
+    _per_context_window_minutes: perContextWindowMinutes ?? null,
   });
+  if (error) {
+    console.error("email_throttle_try_log failed", error);
+    return false;
+  }
+  return data === true;
 }
 
 export function siteLink(path: string) {
