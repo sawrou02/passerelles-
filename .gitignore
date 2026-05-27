@@ -16,6 +16,9 @@ dist-ssr
 .nitro
 *.local
 
+# TanStack Router — fichier régénéré à chaque dev/build par @tanstack/router-plugin
+src/routeTree.gen.ts
+
 # Env
 .env
 .env.local
